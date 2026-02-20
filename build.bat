@@ -1,8 +1,4 @@
 @echo off
-REM ═══════════════════════════════════════════════════════════════
-REM  Build Deadlock Discord Rich Presence into a standalone .exe
-REM ═══════════════════════════════════════════════════════════════
-
 echo.
 echo  Building Deadlock Discord Rich Presence...
 echo.

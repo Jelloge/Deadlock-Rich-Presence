@@ -1,8 +1,3 @@
-"""
-Game State Integration (GSI) receiver for Deadlock.
-Listens for HTTP POST payloads from the Deadlock client.
-"""
-
 import json
 import logging
 import threading
@@ -13,7 +8,7 @@ logger = logging.getLogger("deadlock-rpc.gsi")
 
 
 class GSIState:
-    """Thread-safe container for the latest game state."""
+    """threadsafe container for the latest game state"""
 
     def __init__(self):
         self._lock = threading.Lock()
@@ -38,8 +33,6 @@ class GSIState:
     def is_stale(self) -> bool:
         with self._lock:
             return self._last_update == 0 or (time.time() - self._last_update) > 60.0
-
-    # ── Parsed helpers ─────────────────────────────────────────────────
 
     def get_hero_name(self) -> str | None:
         s = self.get()
@@ -88,7 +81,6 @@ class GSIState:
 
 
 class GSIServer:
-    """Lightweight Flask GSI receiver running in a daemon thread."""
 
     AUTH_TOKEN = "deadlock_discord_rpc_token"
 

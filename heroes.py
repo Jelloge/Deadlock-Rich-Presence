@@ -1,8 +1,3 @@
-"""
-Deadlock hero data and asset mappings.
-Updated through Old Gods, New Blood update (Feb 2026).
-"""
-
 HEROES = {
     "abrams":       {"name": "Abrams",                   "image": "hero_abrams"},
     "apollo":       {"name": "Apollo",                    "image": "hero_apollo"},
@@ -24,7 +19,7 @@ HEROES = {
     "mcginnis":     {"name": "McGinnis",                  "image": "hero_mcginnis"},
     "mina":         {"name": "Mina",                      "image": "hero_mina"},
     "mirage":       {"name": "Mirage",                    "image": "hero_mirage"},
-    "mo_krill":     {"name": "Mo & Krill",                "image": "hero_mo_krill"},
+    "mo_krill":     {"name": "Mo & Krill",                "image": "hero_mo_and_krill"},
     "paige":        {"name": "Paige",                     "image": "hero_paige"},
     "paradox":      {"name": "Paradox",                   "image": "hero_paradox"},
     "pocket":       {"name": "Pocket",                    "image": "hero_pocket"},
@@ -41,8 +36,7 @@ HEROES = {
     "warden":       {"name": "Warden",                    "image": "hero_warden"},
     "wraith":       {"name": "Wraith",                    "image": "hero_wraith"},
     "yamato":       {"name": "Yamato",                    "image": "hero_yamato"},
-    "mistveil":     {"name": "Mistveil",                  "image": "hero_mistveil"},
-    # Hero Labs / Experimental
+    # Hero Labs
     "fathom":       {"name": "Fathom",                    "image": "hero_fathom"},
     "raven":        {"name": "Raven",                     "image": "hero_raven"},
     "trapper":      {"name": "Trapper",                   "image": "hero_trapper"},
