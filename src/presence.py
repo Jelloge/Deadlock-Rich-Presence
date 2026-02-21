@@ -1,257 +1,169 @@
-import time
+from __future__ import annotations
 import logging
-import threading
-from pypresence import Presence, DiscordNotFound, PipeClosed
+from typing import Optional
+from pypresence import Presence, exceptions as rpc_exceptions
+from game_state import GamePhase, GameState, MatchMode
+logger = logging.getLogger(__name__)
 
-from config import DISCORD_APP_ID, GSI_PORT, UPDATE_INTERVAL
-from steam_utils import install_gsi_config, is_deadlock_running
-from server import GSIServer
-from mapping import lookup_hero, get_game_mode_display
+PARTY_MAX = 6
 
-logger = logging.getLogger("deadlock-rpc")
+class DiscordRPC:
 
+    def __init__(self, application_id: str, assets_config: dict, hero_prefix: str = "hero_"):
+        self.application_id = application_id
+        self.assets = assets_config
+        self.hero_prefix = hero_prefix
+        self.rpc: Optional[Presence] = None
+        self._connected = False
+        self._last_update_hash = None
 
-class DeadlockRPC:
-    def __init__(self):
-        self.rpc: Presence | None = None
-        self.gsi: GSIServer | None = None
-        self.connected = False
-        self.enabled = True
-        self.match_start: float | None = None
-        self._running = True
-        self._status = "Starting..."
-        self._lock = threading.Lock()
-
-    @property
-    def status(self) -> str:
-        with self._lock:
-            return self._status
-
-    @status.setter
-    def status(self, val: str):
-        with self._lock:
-            self._status = val
-
-    def connect_discord(self) -> bool:
-        if DISCORD_APP_ID == "YOUR_DISCORD_APP_ID_HERE":
-            return False
+    def connect(self) -> bool:
         try:
-            self.rpc = Presence(DISCORD_APP_ID)
+            self.rpc = Presence(self.application_id)
             self.rpc.connect()
-            self.connected = True
-            self.status = "Connected to Discord"
-            logger.info("Connected to Discord RPC.")
+            self._connected = True
+            logger.info("Connected to Discord RPC")
             return True
-        except DiscordNotFound:
-            self.status = "Waiting for Discord..."
-            return False
         except Exception as e:
-            self.status = f"Discord error: {e}"
+            logger.error("Failed to connect to Discord: %s", e)
+            self._connected = False
             return False
 
-    def disconnect_discord(self):
-        if self.rpc:
+    def disconnect(self) -> None:
+        if self.rpc and self._connected:
             try:
                 self.rpc.clear()
                 self.rpc.close()
             except Exception:
                 pass
-        self.rpc = None
-        self.connected = False
+        self._connected = False
 
-    def start_gsi(self):
-        self.gsi = GSIServer(port=GSI_PORT)
-        self.gsi.start()
+    def ensure_connected(self) -> bool:
+        if self._connected:
+            return True
+        return self.connect()
 
-    def stop_gsi(self):
-        if self.gsi:
-            self.gsi.shutdown()
-            self.gsi = None
-
-    def _resolve_hero(self, gsi):
-        """Return (display_name, image_key, tooltip) or Nones."""
-        hero_raw = gsi.get_hero_name() if gsi else None
-        if not hero_raw:
-            return None, None, None
-        hero = lookup_hero(hero_raw)
-        if hero:
-            return hero["name"], hero["image"], hero["name"]
-        return hero_raw, None, hero_raw
-
-    def _presence_title_screen(self) -> dict:
-        """Deadlock running but no GSI data, player is on the title screen."""
-        return {
-            "details": "On Title Screen",
-            "large_image": "deadlock_logo",
-            "large_text": "Deadlock",
-        }
-
-    def _presence_hideout(self, gsi) -> dict:
-        """Player is in the hideout (not queuing, not in match)."""
-        hero_name, hero_img, hero_tooltip = self._resolve_hero(gsi)
-        in_party = gsi.is_in_party() if gsi else False
-
-        kwargs: dict = {
-            "details": "In Party Hideout" if in_party else "In Hideout",
-            "small_image": "deadlock_logo",
-            "small_text": "Deadlock",
-        }
-
-        if hero_img:
-            kwargs["large_image"] = hero_img
-            kwargs["large_text"] = hero_tooltip
-        else:
-            kwargs["large_image"] = "deadlock_logo"
-            kwargs["large_text"] = "Deadlock"
-
-        return kwargs
-
-    def _presence_queue(self, gsi) -> dict:
-        """Player is searching for a match."""
-        hero_name, hero_img, hero_tooltip = self._resolve_hero(gsi)
-
-        kwargs: dict = {
-            "details": "Finding Match",
-            "small_image": "deadlock_logo",
-            "small_text": "Deadlock",
-        }
-
-        if hero_img:
-            kwargs["large_image"] = hero_img
-            kwargs["large_text"] = hero_tooltip
-        else:
-            kwargs["large_image"] = "deadlock_logo"
-            kwargs["large_text"] = "Deadlock"
-
-        return kwargs
-
-    def _presence_in_match(self, gsi) -> dict:
-        """Player is actively in a match — full stats display."""
-        kwargs: dict = {}
-        state_parts: list[str] = []
-        details_parts: list[str] = []
-
-        hero_name, hero_img, hero_tooltip = self._resolve_hero(gsi)
-        if hero_name:
-            details_parts.append(f"Playing {hero_name}")
-            if hero_img:
-                kwargs["large_image"] = hero_img
-                kwargs["large_text"] = hero_tooltip
-        if not details_parts:
-            details_parts.append("In Match")
-
-        kda = gsi.get_kda() if gsi else None
-        if kda:
-            state_parts.append(f"{kda[0]}/{kda[1]}/{kda[2]} KDA")
-
-        score = gsi.get_team_score() if gsi else None
-        if score:
-            state_parts.append(f"Score: {score[0]} - {score[1]}")
-
-        level = gsi.get_player_level() if gsi else None
-        if level is not None:
-            state_parts.append(f"Lvl {level}")
-
-        souls = gsi.get_souls() if gsi else None
-        if souls is not None:
-            state_parts.append(f"{souls:,} Souls")
-
-        mode = gsi.get_game_mode() if gsi else None
-        if mode:
-            kwargs["small_image"] = "deadlock_logo"
-            kwargs["small_text"] = get_game_mode_display(mode)
-
-        #if we have a confirmed match start
-        if self.match_start:
-            kwargs["start"] = int(self.match_start)
-
-        kwargs["details"] = " · ".join(details_parts)
-        if state_parts:
-            kwargs["state"] = " | ".join(state_parts)
-
-        if "large_image" not in kwargs:
-            kwargs["large_image"] = "deadlock_logo"
-            kwargs["large_text"] = "Deadlock"
-
-        return kwargs
-
-    def _presence_post_match(self, gsi) -> dict:
-        """Match just ended — show final stats without an incrementing timer."""
-        kwargs = self._presence_in_match(gsi)
-        kwargs.pop("start", None)  #freeze the timer
-        kwargs["details"] = kwargs.get("details", "Post Match") + " (ended)"
-        return kwargs
-
-    def tick(self):
-        if not self.enabled:
-            return
-        if not self.connected:
-            if not self.connect_discord():
-                return
-
-        game_running = is_deadlock_running()
-
-        if not game_running:
-            if self.match_start is not None:
-                self.match_start = None
-            try:
-                self.rpc.clear()
-            except Exception:
-                pass
-            self.status = "Waiting for Deadlock..."
+    def update(self, state: GameState) -> None:
+        if not self.ensure_connected():
             return
 
-        gsi = self.gsi.state if self.gsi and not self.gsi.state.is_stale else None
+        presence = self._build_presence(state)
+        update_hash = str(presence)
+        if update_hash == self._last_update_hash:
+            return
+        self._last_update_hash = update_hash
 
-        if gsi is None:
-            self.match_start = None
-            kwargs = self._presence_title_screen()
-            self.status = "In Hideout"
-
-        elif gsi.is_in_queue():
-            self.match_start = None
-            kwargs = self._presence_queue(gsi)
-            self.status = "In Queue"
-
-        elif gsi.is_in_match():
-            if self.match_start is None:
-                self.match_start = time.time()
-            kwargs = self._presence_in_match(gsi)
-            hero_part = kwargs.get("details", "")
-            kda_part = kwargs.get("state", "")
-            self.status = f"{hero_part}" + (f" — {kda_part}" if kda_part else "")
-
-        else:
-            self.match_start = None
-            kwargs = self._presence_hideout(gsi)
-            in_party = gsi.is_in_party()
-            self.status = "In Party Hideout" if in_party else "In Hideout"
-
-        #push to discord
         try:
-            self.rpc.update(**kwargs)
-        except (PipeClosed, BrokenPipeError):
-            self.connected = False
-            self.status = "reconnecting to discord..."
-        except Exception:
-            pass
+            if state.phase == GamePhase.NOT_RUNNING:
+                self.rpc.clear()
+            else:
+                self.rpc.update(**presence)
+                logger.debug("Presence: %s", presence)
+        except rpc_exceptions.InvalidID:
+            logger.error("Invalid Discord Application ID")
+            self._connected = False
+        except (ConnectionError, BrokenPipeError):
+            logger.warning("Discord connection lost")
+            self._connected = False
+        except Exception as e:
+            logger.error("RPC error: %s", e)
 
-    def run_loop(self):
-        install_gsi_config()
-        self.start_gsi()
-        self.connect_discord()
-        self.status = "Waiting for Deadlock..."
-        logger.info("Ready — waiting for Deadlock to launch.")
+    def _build_presence(self, state: GameState) -> dict:
+        logo = self.assets.get("logo", "deadlock_logo")
+        logo_text = self.assets.get("logo_text", "Deadlock")
+        p: dict = {}
 
-        while self._running:
-            try:
-                self.tick()
-            except Exception as e:
-                logger.error("Loop error: %s", e)
-            time.sleep(UPDATE_INTERVAL)
+        match state.phase:
+            case GamePhase.NOT_RUNNING:
+                return {}
 
-        self.disconnect_discord()
-        self.stop_gsi()
+            case GamePhase.MAIN_MENU:
+                p["details"] = "Main Menu"
+                p["large_image"] = logo
+                p["large_text"] = logo_text
 
-    def stop(self):
-        self._running = False
+            case GamePhase.HIDEOUT:
+                p["details"] = "In the Hideout"
+                p["large_image"] = self._hero_or_logo(state, logo)
+                p["large_text"] = state.hero_display_name or logo_text
+                self._small_logo_if_hero(p, state, logo, logo_text)
+                if state.match_start_time:
+                    p["start"] = int(state.match_start_time)
+
+            case GamePhase.PARTY_HIDEOUT:
+                p["details"] = "In Party Hideout"
+                p["state"] = f"Party of {state.party_size}"
+                p["large_image"] = self._hero_or_logo(state, logo)
+                p["large_text"] = state.hero_display_name or logo_text
+                p["party_size"] = [state.party_size, PARTY_MAX]
+                self._small_logo_if_hero(p, state, logo, logo_text)
+
+            case GamePhase.IN_QUEUE:
+                p["details"] = "Finding Match"
+                p["state"] = "Searching..."
+                p["large_image"] = self._hero_or_logo(state, logo)
+                p["large_text"] = state.hero_display_name or logo_text
+                p["small_image"] = self.assets.get("queue_icon", logo)
+                p["small_text"] = "Searching"
+                if state.queue_start_time:
+                    p["start"] = int(state.queue_start_time)
+                if state.in_party:
+                    p["party_size"] = [state.party_size, PARTY_MAX]
+
+            case GamePhase.HERO_SELECT:
+                p["details"] = "Hero Selection"
+                p["state"] = "Picking a hero..."
+                p["large_image"] = logo
+                p["large_text"] = logo_text
+
+            case GamePhase.MATCH_INTRO:
+                p["details"] = state.mode_display()
+                p["state"] = "Match starting..."
+                p["large_image"] = self._hero_or_logo(state, logo)
+                p["large_text"] = state.hero_display_name or logo_text
+                self._small_logo_if_hero(p, state, logo, state.mode_display())
+                if state.in_party:
+                    p["party_size"] = [state.party_size, PARTY_MAX]
+
+            case GamePhase.IN_MATCH:
+                mode_str = state.mode_display()
+                p["details"] = mode_str
+
+                parts = []
+                if state.hero_display_name:
+                    parts.append(f"Playing {state.hero_display_name}")
+                if state.in_party:
+                    parts.append(f"Party of {state.party_size}")
+                p["state"] = " · ".join(parts) if parts else "Selecting Hero..."
+
+                p["large_image"] = self._hero_or_logo(state, logo)
+                p["large_text"] = state.hero_display_name or logo_text
+                if state.hero_key:
+                    p["small_image"] = logo
+                    p["small_text"] = mode_str
+
+                if state.match_start_time:
+                    p["start"] = int(state.match_start_time)
+                if state.in_party:
+                    p["party_size"] = [state.party_size, PARTY_MAX]
+
+            case GamePhase.POST_MATCH:
+                p["details"] = "Post-Match"
+                p["large_image"] = self._hero_or_logo(state, logo)
+                p["large_text"] = state.hero_display_name or logo_text
+                self._small_logo_if_hero(p, state, logo, logo_text)
+
+            case GamePhase.SPECTATING:
+                p["details"] = "Spectating a Match"
+                p["large_image"] = logo
+                p["large_text"] = logo_text
+
+        return {k: v for k, v in p.items() if v is not None}
+
+    def _hero_or_logo(self, state: GameState, logo: str) -> str:
+        return state.hero_asset_name if state.hero_key else logo
+
+    def _small_logo_if_hero(self, p: dict, state: GameState, logo: str, text: str) -> None:
+        if state.hero_key:
+            p["small_image"] = logo
+            p["small_text"] = text

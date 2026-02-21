@@ -1,0 +1,57 @@
+{
+    "discord_application_id": "1474302474474094634",
+
+    "deadlock_app_id": 1422450,
+
+    "deadlock_install_path": "C:/Program Files (x86)/Steam/steamapps/common/Deadlock",
+
+    "console_log_relative_path": "game/citadel/console.log",
+
+    "process_names": ["project8.exe", "deadlock.exe"],
+
+    "update_interval_seconds": 15,
+
+    "resync_max_bytes": 102400,
+
+    "discord_assets": {
+        "logo": "deadlock_logo",
+        "logo_text": "Deadlock",
+        "queue_icon": "queue_icon"
+    },
+
+    "hero_asset_prefix": "hero_",
+
+    "log_patterns": {
+        "change_game_state":    "ChangeGameState:\\s+(\\w+)\\s+\\((\\d+)\\)",
+        "hltv_game_state":      "Citadel HLTV Director, Entering game state:\\s+(\\d+)\\s+\\((\\w+)\\)",
+        "hideout_lobby_state":  "\\[Hideout\\] Hideout Lobby Connection State:\\s+(\\w+)\\s+\\((-?\\d+)\\)",
+        "server_connect":       "\\[Client\\] CL:\\s+Connected to '([^']+)'",
+        "server_disconnect":    "\\[Client\\] Disconnecting from server:\\s+(\\S+)",
+        "server_shutdown":      "\\[Server\\] SV:\\s+Server shutting down:\\s+(\\S+)",
+        "map_load":             "\\[HostStateManager\\].*Loading \\(([^)]+)\\)",
+        "queue_start": "ui_hideout_findingmatch_corner\\.vpcf",
+        "queue_stop_connected": "\\[Client\\] CL:\\s+Connected to '([^']+)'",
+        "host_activate":        "\\[HostStateManager\\] Host activate:.*\\(([^)]+)\\)",
+        "loaded_hero":          "\\[Server\\] Loaded hero \\d+/(hero_\\w+)",
+        "created_bot_hero":     "Created bot \\d+/(hero_\\w+)/(hero_\\w+) at location",
+        "bot_init":             "Initializing bot for player slot \\d+:\\s+(k_ECitadelBotDifficulty_\\w+)",
+        "player_info":          "\\[Client\\] Players:\\s+(\\d+)\\s+\\((\\d+) bots\\)\\s+/\\s+(\\d+) humans",
+        "map_info":             "\\[Client\\] Map:\\s+\"([^\"]+)\"",
+        "app_shutdown":         "Dispatching EventAppShutdown_t",
+        "source2_shutdown":     "Source2Shutdown",
+        "signon_full":          "\\[SignonState\\] Client 0 '([^']+)' signon state \\w+ -> SIGNONSTATE_FULL",
+        "precaching_heroes":    "Precaching (\\d+) heroes in CCitadelGameRules",
+        "loop_mode_menu":       "LoopMode:\\s*menu"
+    },
+
+    "match_maps": ["street_test", "start", "street_test_bridge"],
+
+    "hideout_maps": ["dl_hideout"],
+
+    "map_to_mode": {
+        "dl_hideout":           "hideout",
+        "street_test":          "standard",
+        "start":                "standard",
+        "street_test_bridge":   "standard"
+    }
+}
