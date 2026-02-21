@@ -53,7 +53,7 @@ def inspect(log_path: str):
 
 def replay(log_path: str, config_path: str = "config.json"):
     from game_state import GameState, GamePhase
-    from log_watcher import LogWatcher
+    from console_log import LogWatcher
 
     with open(config_path) as f:
         config = json.load(f)

@@ -128,7 +128,7 @@ class DiscordRPC:
                     parts.append(f"Playing {state.hero_display_name}")
                 if state.in_party:
                     parts.append(f"Party of {state.party_size}")
-                p["state"] = " · ".join(parts) if parts else "Selecting Hero..."
+                p["state"] = " · ".join(parts) if parts else "In Match"
 
                 p["large_image"] = self._hero_or_logo(state, logo)
                 p["large_text"] = state.hero_display_name or logo_text

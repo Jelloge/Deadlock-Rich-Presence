@@ -199,9 +199,9 @@ class LogWatcher:
         old_hero = self.state.hero_key
         old_mode = self.state.match_mode 
 
-        # Map: "dl_hideout" or "street_test" etc.
         if m := self._match("map_info", line):
             map_name = m.group(1).lower()
+
             if map_name and map_name != "<empty>":
                 self.state.map_name = map_name
 
@@ -212,7 +212,6 @@ class LogWatcher:
 
                 elif map_name in self.match_maps:
                     self.state.phase = GamePhase.IN_MATCH
-                    self.state.hero_key = None  #reset hero, will be detected from Loaded hero
                     self.state.match_start_time = time.time()
                     self._hideout_loaded = False
 
