@@ -1,4 +1,4 @@
-# Python
+#python
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -6,27 +6,27 @@ dist/
 build/
 *.spec.bak
 
-# Virtual environment
+#VE
 venv/
 .venv/
 env/
 
-# PyInstaller
+#PyInstaller
 *.manifest
 *.spec.bak
 
-# IDE
+#IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
+#OS
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# App runtime
+#App runtime
 .deadlock-rpc/
 *.log
 *.lock

@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 import sys
 
-from tray_app import TrayApp
+from systray import TrayApp
 
 LOG_DIR = Path.home() / ".deadlock-rpc"
 LOG_DIR.mkdir(exist_ok=True)

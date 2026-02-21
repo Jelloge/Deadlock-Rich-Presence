@@ -4,8 +4,8 @@ import threading
 from pypresence import Presence, DiscordNotFound, PipeClosed
 
 from steam_utils import install_gsi_config, is_deadlock_running
-from src.server import GSIServer
-from heroes import lookup_hero, get_game_mode_display
+from server import GSIServer
+from mapping import lookup_hero, get_game_mode_display
 
 logger = logging.getLogger("deadlock-rpc")
 
@@ -34,8 +34,8 @@ class DeadlockRPC:
 
     def connect_discord(self) -> bool:
         if DISCORD_APP_ID == "YOUR_DISCORD_APP_ID_HERE":
-            self.status = "⚠ Developer: set DISCORD_APP_ID"
-            logger.error("DISCORD_APP_ID not set! Edit the source before building.")
+            self.status = "set DISCORD_APP_ID"
+            logger.error("DISCORD_APP_ID not set")
             return False
         try:
             self.rpc = Presence(DISCORD_APP_ID)

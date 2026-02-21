@@ -1,0 +1,4 @@
+GSI_PORT = 3000
+GSI_AUTH_TOKEN = "deadlock_discord_rpc_token"
+DISCORD_APP_ID = "1474302474474094634"
+UPDATE_INTERVAL = 30  # seconds

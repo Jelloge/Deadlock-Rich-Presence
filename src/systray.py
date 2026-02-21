@@ -9,7 +9,7 @@ from pathlib import Path
 import pystray
 from PIL import Image, ImageDraw, ImageFont
 
-from rpc_manager import DeadlockRPC
+from presence import DeadlockRPC
 
 logger = logging.getLogger("deadlock-rpc")
 
@@ -18,12 +18,18 @@ VERSION = "1.0.0"
 LOG_DIR = Path.home() / ".deadlock-rpc"
 
 def create_tray_icon_image() -> Image.Image:
-    for icon_name in ["icon.ico", "icon.png"]:
-        for search_dir in [Path(__file__).parent / "assets", Path(getattr(sys, "_MEIPASS", "")) / "assets", LOG_DIR / "assets"]:
+    for icon_name in ["deadlock_icon.png"]:
+        for search_dir in [
+            Path(__file__).parent / "assets", 
+            Path(getattr(sys, "_MEIPASS", "")) / "assets", 
+            LOG_DIR / "assets"
+        ]:
             icon_path = search_dir / icon_name
             if icon_path.exists():
-                try: return Image.open(icon_path).resize((64, 64))
-                except Exception: pass
+                try: 
+                    return Image.open(icon_path).resize((64, 64))
+                except Exception: 
+                    pass
                 
     size = 64
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
