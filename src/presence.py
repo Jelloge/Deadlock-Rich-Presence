@@ -87,8 +87,6 @@ class DiscordRPC:
                 p["large_image"] = self._hero_or_logo(state, logo)
                 p["large_text"] = state.hero_display_name or logo_text
                 self._small_logo_if_hero(p, state, logo, logo_text)
-                if state.match_start_time:
-                    p["start"] = int(state.match_start_time)
 
             case GamePhase.PARTY_HIDEOUT:
                 p["details"] = "In Party Hideout"
@@ -111,21 +109,22 @@ class DiscordRPC:
                     p["party_size"] = [state.party_size, PARTY_MAX]
 
             case GamePhase.MATCH_INTRO:
-                p["details"] = state.mode_display()
-                p["state"] = "Match starting..."
+                mode_str = state.mode_display()
+                p["details"] = f"Playing {mode_str}"
+                p["state"] = "Match starting."
                 p["large_image"] = self._hero_or_logo(state, logo)
                 p["large_text"] = state.hero_display_name or logo_text
-                self._small_logo_if_hero(p, state, logo, state.mode_display())
+                self._small_logo_if_hero(p, state, logo, mode_str)
                 if state.in_party:
                     p["party_size"] = [state.party_size, PARTY_MAX]
 
             case GamePhase.IN_MATCH:
                 mode_str = state.mode_display()
-                p["details"] = mode_str
+                p["details"] = f"Playing {mode_str}"
 
                 parts = []
                 if state.hero_display_name:
-                    parts.append(f"Playing {state.hero_display_name}")
+                    parts.append(state.hero_display_name)
                 if state.in_party:
                     parts.append(f"Party of {state.party_size}")
                 p["state"] = " · ".join(parts) if parts else "In Match"

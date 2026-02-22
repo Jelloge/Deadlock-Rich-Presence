@@ -13,6 +13,7 @@ from pathlib import Path
 from game_state import GamePhase, GameState
 from console_log import LogWatcher
 from presence import DiscordRPC
+from systray import create_tray_icon
 
 LOG_DIR = Path(__file__).parent / "logs"
 LOG_DIR.mkdir(exist_ok=True)
@@ -67,109 +68,6 @@ def find_deadlock_path(config: dict) -> Path | None:
             return c
     return None
 
-
-from pathlib import Path
-
-def find_tray_icon():
-    icon_path = Path(__file__).parent / "favicon.ico"
-
-    if icon_path.exists():
-        logger.info("Using tray icon: favicon.ico")
-        return str(icon_path)
-
-    logger.warning("favicon.ico not found in src/")
-    return None
-
-
-def create_tray_icon(app: "DeadlockRPC"):
-    """Create and run the system tray icon."""
-    try:
-        import pystray
-        from PIL import Image
-    except ImportError:
-        logger.warning(
-            "pystray or Pillow not installed. running without system tray. "
-            "Install with: pip install pystray Pillow"
-        )
-        return None
-
-    icon_path = find_tray_icon()
-    if icon_path:
-        logger.info("Tray icon: %s", icon_path)
-        image = Image.open(icon_path)
-    else:
-        logger.warning(
-            "No icon found in assets/."
-        )
-        image = Image.new("RGB", (64, 64), color=(139, 92, 246))  # purple square
-
-    def get_status_text():
-        phase = app.state.phase.name.replace("_", " ").title()
-        hero = app.state.hero_display_name or "None"
-        mode = app.state.mode_display() if app.state.is_in_match else "—"
-        return f"Phase: {phase}\nHero: {hero}\nMode: {mode}"
-
-    def on_status(icon, item):
-        """Show current status as a notification."""
-        status = get_status_text()
-        try:
-            icon.notify(status, "Deadlock RPC Status")
-        except Exception:
-            logger.info("Status:\n%s", status)
-
-    def on_open_log(icon, item):
-        """Open the log file."""
-        log_file = LOG_DIR / "deadlock_rpc.log"
-        if log_file.exists():
-            if platform.system() == "Windows":
-                os.startfile(str(log_file))
-            elif platform.system() == "Darwin":
-                os.system(f'open "{log_file}"')
-            else:
-                os.system(f'xdg-open "{log_file}"')
-
-    def on_quit(icon, item):
-        """Quit the application."""
-        logger.info("Quit requested from tray")
-        app.running = False
-        icon.stop()
-
-    # Build menu
-    menu = pystray.Menu(
-        pystray.MenuItem("Deadlock RPC", None, enabled=False),
-        pystray.Menu.SEPARATOR,
-        pystray.MenuItem("Show Status", on_status),
-        pystray.MenuItem("Open Log", on_open_log),
-        pystray.Menu.SEPARATOR,
-        pystray.MenuItem("Quit", on_quit),
-    )
-
-    icon = pystray.Icon(
-        name="deadlock-rpc",
-        icon=image,
-        title="Deadlock RPC",
-        menu=menu,
-    )
-
-    # update tooltip
-    def update_tooltip():
-        while app.running:
-            try:
-                phase = app.state.phase.name.replace("_", " ").title()
-                hero = app.state.hero_display_name
-                if hero:
-                    icon.title = f"Deadlock RPC — {hero} ({phase})"
-                else:
-                    icon.title = f"Deadlock RPC — {phase}"
-            except Exception:
-                pass
-            time.sleep(5)
-
-    tooltip_thread = threading.Thread(target=update_tooltip, daemon=True, name="tooltip")
-    tooltip_thread.start()
-
-    return icon
-
 class DeadlockRPC:
 
     def __init__(self, config_path: str = "config.json"):
@@ -216,14 +114,14 @@ class DeadlockRPC:
             log_path=self.console_log_path,
             state=self.state,
             patterns=self.config.get("log_patterns", {}),
-            match_maps=self.config.get("match_maps", []),
+            map_to_mode=self.config.get("map_to_mode", {}),
             hideout_maps=self.config.get("hideout_maps", ["dl_hideout"]),
             process_names=self.config.get("process_names", ["project8.exe", "deadlock.exe"]),
             resync_max_bytes=self.config.get("resync_max_bytes", 100 * 1024),
             on_state_change=self._on_state_change,
         )
 
-        # log watcher thread
+        # log reader
         self.watcher_thread = threading.Thread(
             target=self.watcher.start,
             kwargs={"poll_interval": 1.0},
@@ -287,15 +185,12 @@ def main():
 
     logger.info("Starting Deadlock Discord Rich Presence...")
 
-    # create assets dir if missing
-    (SCRIPT_DIR / "assets").mkdir(exist_ok=True)
-
     app = DeadlockRPC(config_path)
 
     # start the RPC
     app.start()
 
-    #Create system tray icon, systray or console, because why not. also, good practice ?
+    #Create system tray icon, systray or console
     tray_icon = create_tray_icon(app)
 
     if tray_icon:

@@ -1,177 +1,178 @@
 """
-localization file: citadel_gc_hero_names_english.txt
+Localization file reference: citadel_gc_hero_names_english.txt
 """
 
 from __future__ import annotations
+
+import time
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Optional
-import time
 
 
 class GamePhase(Enum):
-    NOT_RUNNING   = auto()
-    MAIN_MENU     = auto()
-    HIDEOUT       = auto()
+    NOT_RUNNING = auto()
+    MAIN_MENU = auto()
+    HIDEOUT = auto()
     PARTY_HIDEOUT = auto()
-    IN_QUEUE      = auto()
-    MATCH_INTRO   = auto()
-    IN_MATCH      = auto()
-    POST_MATCH    = auto()
-    SPECTATING    = auto()
+    IN_QUEUE = auto()
+    MATCH_INTRO = auto()
+    IN_MATCH = auto()
+    POST_MATCH = auto()
+    SPECTATING = auto()
 
 
 class MatchMode(Enum):
     """
-      Steam_Citadel_RP_MM_Unranked      "Deadlock:"
-      Steam_Citadel_RP_MM_Ranked        "Ranked:"
-      Steam_Citadel_RP_MM_HeroLabs      "Hero Labs:"
-      Steam_Citadel_RP_MM_PrivateLobby  "Lobby:"
-      Steam_Citadel_RP_MM_CoopBot       "Bots:"
-      Steam_Citadel_RP_MM_Tutorial      "Tutorial:"
-      Steam_Citadel_RP_MM_Sandbox       "Sandbox:"
-      Steam_Citadel_RP_MM_Calibration   "Placement Match:"
-      Steam_Citadel_RP_StreetBrawl      "Street Brawl:"
+    Steam_Citadel_RP_MM_Unranked      "Deadlock:"
+    Steam_Citadel_RP_MM_Ranked        "Ranked:"
+    Steam_Citadel_RP_MM_HeroLabs      "Hero Labs:"
+    Steam_Citadel_RP_MM_PrivateLobby  "Lobby:"
+    Steam_Citadel_RP_MM_CoopBot       "Bots:"
+    Steam_Citadel_RP_MM_Tutorial      "Tutorial:"
+    Steam_Citadel_RP_MM_Sandbox       "Sandbox:"
+    Steam_Citadel_RP_MM_Calibration   "Placement Match:"
+    Steam_Citadel_RP_StreetBrawl      "Street Brawl:"
     """
-    UNKNOWN         = auto()
-    UNRANKED        = auto()
-    RANKED          = auto()
-    HERO_LABS       = auto()
-    PRIVATE_LOBBY   = auto()
-    BOT_MATCH       = auto()
-    TUTORIAL        = auto()
-    SANDBOX         = auto()
-    CALIBRATION     = auto()
-    STREET_BRAWL    = auto()
+    UNKNOWN = auto()
+    UNRANKED = auto()
+    RANKED = auto()
+    HERO_LABS = auto()
+    PRIVATE_LOBBY = auto()
+    BOT_MATCH = auto()
+    TUTORIAL = auto()
+    SANDBOX = auto()
+    CALIBRATION = auto()
+    STREET_BRAWL = auto()
 
 
 MODE_DISPLAY: dict[MatchMode, str] = {
-    MatchMode.UNKNOWN:       "In Match",
-    MatchMode.UNRANKED:      "Unranked",
-    MatchMode.RANKED:        "Ranked",
-    MatchMode.HERO_LABS:     "Hero Labs",
+    MatchMode.UNKNOWN: "Match",
+    MatchMode.UNRANKED: "Standard (6v6)",
+    MatchMode.RANKED: "Ranked (6v6)",
+    MatchMode.HERO_LABS: "Hero Labs",
     MatchMode.PRIVATE_LOBBY: "Private Lobby",
-    MatchMode.BOT_MATCH:     "Bot Match",
-    MatchMode.TUTORIAL:      "Tutorial",
-    MatchMode.SANDBOX:       "Sandbox",
-    MatchMode.CALIBRATION:   "Placement Match",
-    MatchMode.STREET_BRAWL:  "Street Brawl",
+    MatchMode.BOT_MATCH: "Bot Match",
+    MatchMode.TUTORIAL: "Tutorial",
+    MatchMode.SANDBOX: "Sandbox",
+    MatchMode.CALIBRATION: "Placement Match",
+    MatchMode.STREET_BRAWL: "Street Brawl (4v4)",
 }
 
 # citadel_gc_hero_names_english.txt (official Deadlock localization)
-# Console.log uses these as: "Loaded hero 458/hero_inferno"
-# or "Created bot 460/hero_gigawatt/hero_gigawatt"
+# Console.log examples:
+#   "Loaded hero 458/hero_inferno"
+#   "Created bot 460/hero_gigawatt/hero_gigawatt"
 HEROES: dict[str, str] = {
-    # Released / Playable heroe
-    "atlas":        "Abrams",
-    "astro":        "Holliday",
-    "bebop":        "Bebop",
-    "bookworm":     "Paige",
-    "bomber":       "Bomber",
-    "cadence":      "Cadence",
-    "chrono":       "Paradox",
-    "doorman":      "The Doorman",
-    "drifter":      "Drifter",
-    "dynamo":       "Dynamo",
-    "familiar":     "Rem",
-    "fencer":       "Apollo",
-    "forge":        "McGinnis",
-    "frank":        "Victor",
-    "ghost":        "Lady Geist",
-    "gigawatt":     "Seven",
-    "gunslinger":   "Gunslinger",
-    "haze":         "Haze",
-    "hornet":       "Vindicta",
-    "inferno":      "Infernus",
-    "kali":         "Kali",
-    "kelvin":       "Kelvin",
-    "krill":        "Mo & Krill",
-    "lash":         "Lash",
-    "magician":     "Sinclair",
-    "mirage":       "Mirage",
-    "nano":         "Calico",
-    "necro":        "Graves",
-    "operative":    "Raven",
-    "orion":        "Grey Talon",
-    "phalanx":      "Phalanx",
-    "priest":       "Venator",
-    "punkgoat":     "Billy",
-    "rutger":       "Rutger",
-    "shiv":         "Shiv",
-    "slork":        "Fathom",
-    "synth":        "Pocket",
-    "tengu":        "Ivy",
-    "tokamak":      "Tokamak",
-    "trapper":      "Trapper",
-    "unicorn":      "Celeste",
-    "vampirebat":   "Mina",
-    "viper":        "Vyper",
-    "viscous":      "Viscous",
-    "warden":       "Warden",
-    "werewolf":     "Silver",
-    "wraith":       "Wraith",
-    "yamato":       "Yamato",
+    # Released / playable heroes
+    "atlas": "Abrams",
+    "astro": "Holliday",
+    "bebop": "Bebop",
+    "bookworm": "Paige",
+    "bomber": "Bomber",
+    "cadence": "Cadence",
+    "chrono": "Paradox",
+    "doorman": "The Doorman",
+    "drifter": "Drifter",
+    "dynamo": "Dynamo",
+    "familiar": "Rem",
+    "fencer": "Apollo",
+    "forge": "McGinnis",
+    "frank": "Victor",
+    "ghost": "Lady Geist",
+    "gigawatt": "Seven",
+    "gunslinger": "Gunslinger",
+    "haze": "Haze",
+    "hornet": "Vindicta",
+    "inferno": "Infernus",
+    "kali": "Kali",
+    "kelvin": "Kelvin",
+    "krill": "Mo & Krill",
+    "lash": "Lash",
+    "magician": "Sinclair",
+    "mirage": "Mirage",
+    "nano": "Calico",
+    "necro": "Graves",
+    "operative": "Raven",
+    "orion": "Grey Talon",
+    "phalanx": "Phalanx",
+    "priest": "Venator",
+    "punkgoat": "Billy",
+    "rutger": "Rutger",
+    "shiv": "Shiv",
+    "slork": "Fathom",
+    "synth": "Pocket",
+    "tengu": "Ivy",
+    "tokamak": "Tokamak",
+    "trapper": "Trapper",
+    "unicorn": "Celeste",
+    "vampirebat": "Mina",
+    "viper": "Vyper",
+    "viscous": "Viscous",
+    "warden": "Warden",
+    "werewolf": "Silver",
+    "wraith": "Wraith",
+    "yamato": "Yamato",
 
-    #Unreleased
-    "akimbo":       "Akimbo",
-    "apocalypse":   "Apocalypse",
-    "architect":    "Architect",
-    "ballista":     "Ballista",
-    "boho":         "Boho",
-    "clawdril":     "Clawdril",
-    "coldmetal":    "Cold Metal",
-    "cowboy":       "Cowboy",
-    "demoman":      "Demolitions Expert",
-    "druid":        "Druid",
-    "duo":          "Duo",
-    "fortuna":      "Fortuna",
-    "gadgeteer":    "Gadgeteer",
-    "gadgetman":    "Gadget Man",
+    # Unreleased / internal
+    "akimbo": "Akimbo",
+    "apocalypse": "Apocalypse",
+    "architect": "Architect",
+    "ballista": "Ballista",
+    "boho": "Boho",
+    "clawdril": "Clawdril",
+    "coldmetal": "Cold Metal",
+    "cowboy": "Cowboy",
+    "demoman": "Demolitions Expert",
+    "druid": "Druid",
+    "duo": "Duo",
+    "fortuna": "Fortuna",
+    "gadgeteer": "Gadgeteer",
+    "gadgetman": "Gadget Man",
     "genericperson": "Generic Person",
-    "glider":       "Glider",
-    "graf":         "Graf",
-    "gunner":       "Gunner",
-    "hijack":       "Hijack",
-    "mechaguy":     "Mecha Guy",
-    "opera":        "Opera",
-    "phoenix":      "Phoenix",
-    "revenant":     "Revenant",
-    "sapper":       "Sapper",
-    "shieldguy":    "Shield Guy",
-    "skymonk":      "Sky Monk",
-    "skyrunner":    "Skyrunner",
-    "slingshot":    "Slingshot",
-    "spade":        "Spade",
-    "swan":         "Swan",
-    "tempest":      "Tempest",
-    "thumper":      "Thumper",
-    "vampire":      "Vampire",
-    "vandal":       "Vandal",
-    "wrecker":      "Wrecker",
-    "yakuza":       "The Boss",
-    "zealot":       "Zealot",
-    "test":         "Test Hero",
-    "targetdummy":  "TargetDummy",
+    "glider": "Glider",
+    "graf": "Graf",
+    "gunner": "Gunner",
+    "hijack": "Hijack",
+    "mechaguy": "Mecha Guy",
+    "opera": "Opera",
+    "phoenix": "Phoenix",
+    "revenant": "Revenant",
+    "sapper": "Sapper",
+    "shieldguy": "Shield Guy",
+    "skymonk": "Sky Monk",
+    "skyrunner": "Skyrunner",
+    "slingshot": "Slingshot",
+    "spade": "Spade",
+    "swan": "Swan",
+    "tempest": "Tempest",
+    "thumper": "Thumper",
+    "vampire": "Vampire",
+    "vandal": "Vandal",
+    "wrecker": "Wrecker",
+    "yakuza": "The Boss",
+    "zealot": "Zealot",
+    "test": "Test Hero",
+    "targetdummy": "TargetDummy",
 }
 
 
 @dataclass
 class GameState:
-
-    phase: GamePhase           = GamePhase.NOT_RUNNING
-    match_mode: MatchMode      = MatchMode.UNKNOWN
-    hero_key: Optional[str]    = None          # internal codename
-    is_transformed: bool =      False
-    party_size: int            = 1             # 1 = solo
-    server_address: Optional[str] = None       # ip:port from console
-    map_name: Optional[str]    = None
-    is_loopback: bool          = False         #hideout
-    match_start_time: Optional[float] = None   #epoch when match began
-    queue_start_time: Optional[float] = None   #epoch when queue began
-    last_update: float         = field(default_factory=time.time)
-    game_state_id: Optional[int] = None        #from ChangeGameState
-    player_count: int          = 0
-    bot_count: int             = 0
+    phase: GamePhase = GamePhase.NOT_RUNNING
+    match_mode: MatchMode = MatchMode.UNKNOWN
+    hero_key: Optional[str] = None  # internal codename
+    is_transformed: bool = False
+    party_size: int = 1  # 1 = solo
+    server_address: Optional[str] = None  # ip:port from console
+    map_name: Optional[str] = None
+    is_loopback: bool = False  # hideout
+    match_start_time: Optional[float] = None  # epoch when match began
+    queue_start_time: Optional[float] = None  # epoch when queue began
+    last_update: float = field(default_factory=time.time)
+    game_state_id: Optional[int] = None  # from ChangeGameState
+    player_count: int = 0
+    bot_count: int = 0
     bot_difficulty: Optional[str] = None
 
     @property
@@ -182,7 +183,7 @@ class GameState:
 
     @property
     def hero_asset_name(self) -> Optional[str]:
-        """Returns the Discord asset key for the current hero."""
+        """Discord asset key for the current hero."""
         if self.hero_key is None:
             return None
 
@@ -215,7 +216,7 @@ class GameState:
         return int(time.time() - self.queue_start_time)
 
     def mode_display(self) -> str:
-        return MODE_DISPLAY.get(self.match_mode, "In Match")
+        return MODE_DISPLAY.get(self.match_mode, "Match")
 
     def enter_main_menu(self) -> None:
         self.phase = GamePhase.MAIN_MENU
@@ -255,7 +256,7 @@ class GameState:
         normalized = hero_key.lower().replace("hero_", "")
         if normalized != self.hero_key:
             self.hero_key = normalized
-            self.is_transformed = False  # reset form on hero change, doing this for silver
+            self.is_transformed = False  # reset form on hero change
 
     def set_party_size(self, size: int) -> None:
         self.party_size = max(1, size)
@@ -292,7 +293,7 @@ class GameState:
         self.bot_difficulty = None
 
     def reset(self) -> None:
-        """Full reset — game closed."""
+        """Full reset when the game closes."""
         self.phase = GamePhase.NOT_RUNNING
         self.match_mode = MatchMode.UNKNOWN
         self.hero_key = None

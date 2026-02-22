@@ -11,7 +11,7 @@
 
     "update_interval_seconds": 15,
 
-    "resync_max_bytes": 102400,
+    "resync_max_bytes": 10485760,
 
     "discord_assets": {
         "logo": "deadlock_logo",
@@ -29,8 +29,9 @@
         "server_disconnect":    "\\[Client\\] Disconnecting from server:\\s+(\\S+)",
         "server_shutdown":      "\\[Server\\] SV:\\s+Server shutting down:\\s+(\\S+)",
         "map_load":             "\\[HostStateManager\\].*Loading \\(([^)]+)\\)",
+        "map_physics":          "\\[Client\\] Created physics for (\\w+)",
         "silver_wolf_form_on":  "werewolf_transform\\.vmdl",
-        "silver_wolf_form_off": "werewolf_(untransform|revert)\\.vmdl",
+        "silver_wolf_form_off": "werewolf\\.vmdl",
         "queue_start":          "ui_hideout_findingmatch_corner\\.vpcf",
         "mm_start":             "\\[GCClient\\] Send msg 9010 \\(k_EMsgClientToGCStartMatchmaking\\)",
         "mm_stop":              "\\[GCClient\\] Send msg 9012 \\(k_EMsgClientToGCStopMatchmaking\\)",
@@ -46,12 +47,9 @@
         "loop_mode_menu":       "LoopMode:\\s*menu"
     },
 
-    "match_maps": ["street_test", "start", "street_test_bridge", "new_player_basics", "dl_midtown"],
-
     "hideout_maps": ["dl_hideout"],
 
     "map_to_mode": {
-        "dl_hideout":           "hideout",
         "street_test":          "standard",
         "start":                "standard",
         "street_test_bridge":   "standard",

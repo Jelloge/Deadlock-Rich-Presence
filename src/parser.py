@@ -67,7 +67,7 @@ def replay(log_path: str, config_path: str = "config.json"):
     watcher = LogWatcher(
         log_path=log_path, state=state,
         patterns=config.get("log_patterns", {}),
-        match_maps=config.get("match_maps", []),
+        match_maps=config.get("map_to_mode", []),
         hideout_maps=config.get("hideout_maps", ["dl_hideout"]),
         process_names=[],
     )
