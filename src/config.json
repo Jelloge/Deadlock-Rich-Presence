@@ -46,7 +46,7 @@
         "loop_mode_menu":       "LoopMode:\\s*menu"
     },
 
-    "match_maps": ["street_test", "start", "street_test_bridge", "new_player_basics"],
+    "match_maps": ["street_test", "start", "street_test_bridge", "new_player_basics", "dl_midtown"],
 
     "hideout_maps": ["dl_hideout"],
 
@@ -55,6 +55,7 @@
         "street_test":          "standard",
         "start":                "standard",
         "street_test_bridge":   "standard",
-        "new_player_basics":    "sandbox"
+        "new_player_basics":    "sandbox",
+        "dl_midtown": "street_brawl"
     }
 }
