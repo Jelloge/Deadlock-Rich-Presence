@@ -59,7 +59,6 @@ class LogWatcher:
         self._last_size = 0
         self._bot_init_count = 0
         self._hideout_loaded = False
-        self._skip_first_hideout_hero = False
         self._game_was_running = False
 
     def is_game_running(self) -> bool:
@@ -216,10 +215,8 @@ class LogWatcher:
         if mapped_mode and mapped_mode != MatchMode.UNKNOWN:
             self.state.match_mode = mapped_mode
 
-        # Hideout maps — only skip the first hero load when first entering
+        # Hideout maps
         if map_name in self.hideout_maps:
-            if self.state.phase not in (GamePhase.HIDEOUT, GamePhase.PARTY_HIDEOUT):
-                self._skip_first_hideout_hero = True
             self.state.phase = GamePhase.PARTY_HIDEOUT if self.state.in_party else GamePhase.HIDEOUT
             self._hideout_loaded = True
             self._bot_init_count = 0
@@ -279,13 +276,21 @@ class LogWatcher:
 
         # Hero loading — local server (hideout / sandbox / bots)
         # Skip during spectating — we don't want the spectated player's hero
-        # Skip the first hero on hideout load — it's always a phantom Abrams
         elif m := self._match("loaded_hero", line):
             if self.state.phase != GamePhase.SPECTATING:
-                if self._skip_first_hideout_hero:
-                    self._skip_first_hideout_hero = False
-                else:
-                    hero_norm = m.group(1).lower().replace("hero_", "")
+                hero_norm = m.group(1).lower().replace("hero_", "")
+
+                in_menu_like = self.state.phase in (
+                    GamePhase.MAIN_MENU,
+                    GamePhase.HIDEOUT,
+                    GamePhase.PARTY_HIDEOUT,
+                )
+
+                bogus_startup_atlas = (
+                    in_menu_like and hero_norm == "atlas" and self.state.hero_key is None
+                )
+
+                if not bogus_startup_atlas:
                     self.state.set_hero(hero_norm)
 
         # Hero loading — client-side VMDL signal (works in remote matches)
