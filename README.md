@@ -22,7 +22,7 @@ Download **DeadlockRPC.exe** from the [latest release](https://github.com/Jellog
 
 It will show up in your taskbar. Make sure you launch the game USING this app, as it will automatically launch your game with '-condebug' via Steam so console logging is always enabled.
 
-Config.json has my game's install path hardcoded, and it will work for most people. If you have Deadlock on a different drive, it will (should) fall back to the auto-detection feature which will search common paths and parses libraryfolders.vdf so it should be fine. 
+If you need help, message me on Discord: boba
 
 <details>
 <summary>Building from source</summary>
@@ -64,7 +64,7 @@ The game's runtime and memory are never touched. So it's VAC-safe and won't affe
 
 ## Known Bugs
 
-Please report any bugs in the Issues tab.
+Please report any bugs in the Issues tab. 
 
 - 'Looking for Match...' not being displayed for players in a party.
 
