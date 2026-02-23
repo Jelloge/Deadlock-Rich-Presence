@@ -279,19 +279,7 @@ class LogWatcher:
         elif m := self._match("loaded_hero", line):
             if self.state.phase != GamePhase.SPECTATING:
                 hero_norm = m.group(1).lower().replace("hero_", "")
-
-                in_menu_like = self.state.phase in (
-                    GamePhase.MAIN_MENU,
-                    GamePhase.HIDEOUT,
-                    GamePhase.PARTY_HIDEOUT,
-                )
-
-                bogus_startup_atlas = (
-                    in_menu_like and hero_norm == "atlas" and self.state.hero_key is None
-                )
-
-                if not bogus_startup_atlas:
-                    self.state.set_hero(hero_norm)
+                self.state.set_hero(hero_norm)
 
         # Hero loading — client-side VMDL signal (works in remote matches)
         # Also handles Silver's wolf form swap (same VMDL line)
