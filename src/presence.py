@@ -73,7 +73,6 @@ class DiscordRPC:
         logo = self.assets.get("logo", "deadlock_logo")
         logo_text = self.assets.get("logo_text", "Deadlock")
 
-        # Common defaults — most phases show the hero (or logo fallback)
         p: dict = {
             "large_image": state.hero_asset_name or logo,
             "large_text": state.hero_display_name or logo_text,
@@ -92,8 +91,7 @@ class DiscordRPC:
 
             case GamePhase.HIDEOUT:
                 p["details"] = "In the Hideout"
-                p["state"] = "Playing Solo (1 of 6)"
-                p["party_size"] = [1, PARTY_MAX]
+                p["details"] = "Playing Solo (1 of 6)"
 
             case GamePhase.PARTY_HIDEOUT:
                 p["details"] = "In Party Hideout"
@@ -110,8 +108,7 @@ class DiscordRPC:
                 if state.in_party:
                     p["state"] = f"Party of {state.party_size}"
                 else:
-                    p["state"] = "Playing Solo (1 of 6)"
-                    p["party_size"] = [1, PARTY_MAX]
+                    p["details"] = "Playing Solo (1 of 6)"
                 if state.hero_key:
                     p["small_text"] = mode_str
 
@@ -122,9 +119,7 @@ class DiscordRPC:
                 if state.in_party:
                     p["state"] = f"Party of {state.party_size}"
                 else:
-                    p["state"] = "Playing Solo (1 of 6)"
-                    p["party_size"] = [1, PARTY_MAX]
-
+                    p["details"] = "Playing Solo (1 of 6)"
                 if state.hero_key:
                     p["small_text"] = mode_str
                 if state.match_start_time and state.match_mode not in (MatchMode.SANDBOX, MatchMode.TUTORIAL):
@@ -140,7 +135,7 @@ class DiscordRPC:
                 p.pop("small_image", None)
                 p.pop("small_text", None)
 
-        # Stable session timestamp so Discord doesn't reset on every update
+        # Stable session timestamp
         if "start" not in p and state.session_start_time:
             p["start"] = int(state.session_start_time)
 
