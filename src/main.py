@@ -12,6 +12,7 @@ from pathlib import Path
 
 from game_state import GameState
 from console_log import LogWatcher
+from condebug import launch as launch_deadlock
 from presence import DiscordRPC
 from systray import create_tray_icon
 
@@ -182,6 +183,10 @@ def main():
         sys.exit(1)
 
     logger.info("Starting Deadlock Discord Rich Presence...")
+
+    # Launch Deadlock with -condebug
+    logger.info("Launching Deadlock via Steam with -condebug...")
+    launch_deadlock()
 
     app = DeadlockRPC(cfg)
 
