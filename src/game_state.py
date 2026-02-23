@@ -168,6 +168,7 @@ class GameState:
     is_loopback: bool = False  # hideout
     match_start_time: Optional[float] = None  # epoch when match began
     queue_start_time: Optional[float] = None  # epoch when queue began
+    session_start_time: Optional[float] = None  # epoch when game was detected
     last_update: float = field(default_factory=time.time)
     game_state_id: Optional[int] = None  # from ChangeGameState
     player_count: int = 0
@@ -288,6 +289,7 @@ class GameState:
         self.map_name = None
         self.match_start_time = None
         self.queue_start_time = None
+        self.session_start_time = None
         self.is_loopback = False
         self.game_state_id = None
         self.player_count = 0

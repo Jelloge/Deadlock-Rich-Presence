@@ -134,7 +134,7 @@ class DiscordRPC:
 
                 if state.match_start_time and state.match_mode not in (MatchMode.SANDBOX, MatchMode.TUTORIAL):
                     p["start"] = int(state.match_start_time)
-                    
+
                 if state.in_party:
                     p["party_size"] = [state.party_size, PARTY_MAX]
 
@@ -148,6 +148,11 @@ class DiscordRPC:
                 p["details"] = "Spectating a Match"
                 p["large_image"] = logo
                 p["large_text"] = logo_text
+
+        # Always pass a stable timestamp so Discord doesn't reset it on every update.
+        # Match time takes priority (already set above), otherwise use session start.
+        if "start" not in p and state.session_start_time:
+            p["start"] = int(state.session_start_time)
 
         return {k: v for k, v in p.items() if v is not None}
 
