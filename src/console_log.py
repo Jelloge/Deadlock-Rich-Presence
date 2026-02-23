@@ -200,6 +200,8 @@ class LogWatcher:
 
     def _apply_map(self, map_name: str) -> None:
         """Apply map-derived phase/mode updates from any map signal."""
+        if self.state.phase == GamePhase.SPECTATING:
+            return
         map_name = map_name.lower().strip()
         if not map_name or map_name == "<empty>":
             return
@@ -272,26 +274,29 @@ class LogWatcher:
                 self.state.queue_start_time = None
 
         # Hero loading — local server (hideout / sandbox / bots)
+        # Skip during spectating — we don't want the spectated player's hero
         elif m := self._match("loaded_hero", line):
-            hero_norm = m.group(1).lower().replace("hero_", "")
+            if self.state.phase != GamePhase.SPECTATING:
+                hero_norm = m.group(1).lower().replace("hero_", "")
 
-            in_menu_like = self.state.phase in (
-                GamePhase.MAIN_MENU,
-                GamePhase.HIDEOUT,
-                GamePhase.PARTY_HIDEOUT,
-            )
+                in_menu_like = self.state.phase in (
+                    GamePhase.MAIN_MENU,
+                    GamePhase.HIDEOUT,
+                    GamePhase.PARTY_HIDEOUT,
+                )
 
-            bogus_startup_atlas = (
-                in_menu_like and hero_norm == "atlas" and self.state.hero_key is None
-            )
+                bogus_startup_atlas = (
+                    in_menu_like and hero_norm == "atlas" and self.state.hero_key is None
+                )
 
-            if not bogus_startup_atlas:
-                self.state.set_hero(hero_norm)
+                if not bogus_startup_atlas:
+                    self.state.set_hero(hero_norm)
 
         # Hero loading — client-side VMDL signal (works in remote matches)
         elif m := self._match("client_hero_vmdl", line):
-            hero_norm = m.group(1).lower()
-            self.state.set_hero(hero_norm)
+            if self.state.phase != GamePhase.SPECTATING:
+                hero_norm = m.group(1).lower()
+                self.state.set_hero(hero_norm)
 
         elif self._match("silver_wolf_form_on", line):
             self.state.is_transformed = True
@@ -312,17 +317,18 @@ class LogWatcher:
                 self.state.end_match()
 
         elif m := self._match("change_game_state", line):
-            state_name = m.group(1).lower()
-            state_id = int(m.group(2))
-            self.state.game_state_id = state_id
+            if self.state.phase != GamePhase.SPECTATING:
+                state_name = m.group(1).lower()
+                state_id = int(m.group(2))
+                self.state.game_state_id = state_id
 
-            if not self._hideout_loaded:
-                if state_name == "matchintro" or state_id == 4:
-                    self.state.enter_match_intro()
-                elif state_name in ("gameinprogress", "inprogress") or state_id in (7,):
-                    self.state.start_match()
-                elif state_name == "postgame" or state_id == 6:
-                    self.state.end_match()
+                if not self._hideout_loaded:
+                    if state_name == "matchintro" or state_id == 4:
+                        self.state.enter_match_intro()
+                    elif state_name in ("gameinprogress", "inprogress") or state_id in (7,):
+                        self.state.start_match()
+                    elif state_name == "postgame" or state_id == 6:
+                        self.state.end_match()
 
         # Hideout lobby state
         elif m := self._match("hideout_lobby_state", line):
@@ -338,10 +344,11 @@ class LogWatcher:
 
         # Bot mode
         elif m := self._match("bot_init", line):
-            difficulty = m.group(1).replace("k_ECitadelBotDifficulty_", "")
-            self._bot_init_count += 1
-            self.state.bot_difficulty = difficulty
-            self.state.match_mode = MatchMode.BOT_MATCH
+            if self.state.phase != GamePhase.SPECTATING:
+                difficulty = m.group(1).replace("k_ECitadelBotDifficulty_", "")
+                self._bot_init_count += 1
+                self.state.bot_difficulty = difficulty
+                self.state.match_mode = MatchMode.BOT_MATCH
 
         # Host activate (map fully loaded)
         elif m := self._match("host_activate", line):
@@ -363,14 +370,15 @@ class LogWatcher:
         # Standard 6v6: 12 online, 6 co-op bots
         # Street Brawl 4v4: 8 online, 4 co-op bots
         elif m := self._match("player_info", line):
-            self.state.player_count = int(m.group(1))
-            self.state.bot_count = int(m.group(2))
+            if self.state.phase != GamePhase.SPECTATING:
+                self.state.player_count = int(m.group(1))
+                self.state.bot_count = int(m.group(2))
 
-            count = self.state.player_count
-            if count in (6, 12):
-                self.state.match_mode = MatchMode.UNRANKED
-            elif count in (4, 8):
-                self.state.match_mode = MatchMode.STREET_BRAWL
+                count = self.state.player_count
+                if count in (6, 12):
+                    self.state.match_mode = MatchMode.UNRANKED
+                elif count in (4, 8):
+                    self.state.match_mode = MatchMode.STREET_BRAWL
 
         # (>0 means real match loading)
         elif m := self._match("precaching_heroes", line):
