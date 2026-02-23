@@ -63,6 +63,7 @@ MODE_DISPLAY: dict[MatchMode, str] = {
 #"Created bot 460/hero_gigawatt/hero_gigawatt"
 HEROES: dict[str, str] = {
     # playable heroes
+    "abrams": "Abrams",
     "atlas": "Abrams",
     "archer": "Grey Talon",
     "astro": "Holliday",
@@ -161,6 +162,7 @@ HEROES: dict[str, str] = {
 # Valve renamed some hero folders but Discord assets still use the old codenames.
 # Maps current game codename -> Discord asset key.
 ASSET_OVERRIDES: dict[str, str] = {
+    "abrams": "hero_atlas",
     "archer": "hero_orion",
     "digger": "hero_krill",
     "ivy": "hero_tengu",
