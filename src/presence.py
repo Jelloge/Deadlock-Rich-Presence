@@ -92,6 +92,8 @@ class DiscordRPC:
 
             case GamePhase.HIDEOUT:
                 p["details"] = "In the Hideout"
+                p["state"] = "Playing Solo (1 of 6)"
+                p["party_size"] = [1, PARTY_MAX]
 
             case GamePhase.PARTY_HIDEOUT:
                 p["details"] = "In Party Hideout"
@@ -105,7 +107,11 @@ class DiscordRPC:
             case GamePhase.MATCH_INTRO:
                 mode_str = state.mode_display()
                 p["details"] = f"Playing {mode_str}"
-                p["state"] = "Match starting"
+                if state.in_party:
+                    p["state"] = f"Party of {state.party_size}"
+                else:
+                    p["state"] = "Playing Solo (1 of 6)"
+                    p["party_size"] = [1, PARTY_MAX]
                 if state.hero_key:
                     p["small_text"] = mode_str
 
@@ -113,12 +119,11 @@ class DiscordRPC:
                 mode_str = state.mode_display()
                 p["details"] = f"Playing {mode_str}"
 
-                parts = []
-                if state.hero_display_name:
-                    parts.append(state.hero_display_name)
                 if state.in_party:
-                    parts.append(f"Party of {state.party_size}")
-                p["state"] = " · ".join(parts) if parts else "In Match"
+                    p["state"] = f"Party of {state.party_size}"
+                else:
+                    p["state"] = "Playing Solo (1 of 6)"
+                    p["party_size"] = [1, PARTY_MAX]
 
                 if state.hero_key:
                     p["small_text"] = mode_str
