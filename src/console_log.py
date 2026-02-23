@@ -256,6 +256,13 @@ class LogWatcher:
         elif self._match("lobby_destroyed", line):
             self.state.end_match()
 
+        # Spectating — "Playing Broadcast" in HostStateManager
+        elif self._match("spectate_broadcast", line):
+            self.state.phase = GamePhase.SPECTATING
+            self.state.match_start_time = None
+            self.state.queue_start_time = None
+            self._hideout_loaded = False
+
         # If we connect to a real server while queued, stop queue timer
         elif m := self._match("server_connect", line):
             addr = m.group(1)
@@ -297,11 +304,11 @@ class LogWatcher:
             reason = m.group(1)
             if "EXITING" in reason.upper():
                 self.state.reset()
-            elif self.state.phase in (GamePhase.IN_MATCH, GamePhase.MATCH_INTRO):
+            elif self.state.phase in (GamePhase.IN_MATCH, GamePhase.MATCH_INTRO, GamePhase.SPECTATING):
                 self.state.end_match()
 
         elif self._match("loop_mode_menu", line):
-            if self.state.phase in (GamePhase.IN_MATCH, GamePhase.MATCH_INTRO):
+            if self.state.phase in (GamePhase.IN_MATCH, GamePhase.MATCH_INTRO, GamePhase.SPECTATING):
                 self.state.end_match()
 
         elif m := self._match("change_game_state", line):
