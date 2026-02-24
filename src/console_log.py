@@ -164,7 +164,12 @@ class LogWatcher:
                 self._notify()
 
                 self.resync()
-                self._open_log()
+                if not self._open_log():
+                    logger.warning(
+                        "console.log not found at %s — is Deadlock running with -condebug? "
+                        "Add -condebug to Steam launch options or restart Deadlock via this app.",
+                        self.log_path,
+                    )
 
             elif not game_running and self._game_was_running:
                 logger.info("Deadlock closed.")

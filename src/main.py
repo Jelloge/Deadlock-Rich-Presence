@@ -37,12 +37,58 @@ logging.basicConfig(
 logger = logging.getLogger("deadlock-rpc")
 SCRIPT_DIR = BUNDLE_DIR
 
+DEADLOCK_APP_ID = "1422450"
+
+
+def _steam_library_folders() -> list[Path]:
+    """Return all Steam library folder paths from libraryfolders.vdf."""
+    if platform.system() == "Windows":
+        vdf_locations = [
+            Path(r"C:\Program Files (x86)\Steam\steamapps\libraryfolders.vdf"),
+            Path(r"C:\Program Files\Steam\steamapps\libraryfolders.vdf"),
+        ]
+    elif platform.system() == "Linux":
+        home = Path.home()
+        vdf_locations = [
+            home / ".steam/steam/steamapps/libraryfolders.vdf",
+            home / ".local/share/Steam/steamapps/libraryfolders.vdf",
+        ]
+    else:
+        return []
+
+    for vdf_path in vdf_locations:
+        if vdf_path.exists():
+            try:
+                text = vdf_path.read_text(errors="replace")
+                return [Path(m.group(1)) for m in re.finditer(r'"path"\s+"([^"]+)"', text)]
+            except Exception:
+                pass
+    return []
+
+
 def find_deadlock_path(config: dict) -> Path | None:
+    # 1. Explicit user override
     if config.get("deadlock_install_path"):
         p = Path(config["deadlock_install_path"])
         if p.exists() and (p / "game" / "citadel").exists():
             return p
 
+    # 2. Check Steam appmanifest — the definitive source for where a game is installed.
+    #    Steam only keeps appmanifest_<appid>.acf in the library folder that owns the game.
+    for lib in _steam_library_folders():
+        manifest = lib / "steamapps" / f"appmanifest_{DEADLOCK_APP_ID}.acf"
+        if manifest.exists():
+            try:
+                text = manifest.read_text(errors="replace")
+                m = re.search(r'"installdir"\s+"([^"]+)"', text)
+                if m:
+                    p = lib / "steamapps" / "common" / m.group(1)
+                    if p.exists() and (p / "game" / "citadel").exists():
+                        return p
+            except Exception:
+                pass
+
+    # 3. Hardcoded fallbacks for when VDF/manifest detection fails
     system = platform.system()
     candidates: list[Path] = []
 
@@ -53,14 +99,6 @@ def find_deadlock_path(config: dict) -> Path | None:
             Path(r"D:\SteamLibrary\steamapps\common\Deadlock"),
             Path(r"E:\SteamLibrary\steamapps\common\Deadlock"),
         ]
-        vdf_path = Path(r"C:\Program Files (x86)\Steam\steamapps\libraryfolders.vdf")
-        if vdf_path.exists():
-            try:
-                text = vdf_path.read_text(errors="replace")
-                for m in re.finditer(r'"path"\s+"([^"]+)"', text):
-                    candidates.append(Path(m.group(1)) / "steamapps" / "common" / "Deadlock")
-            except Exception:
-                pass
     elif system == "Linux":
         home = Path.home()
         candidates = [
@@ -68,10 +106,15 @@ def find_deadlock_path(config: dict) -> Path | None:
             home / ".local/share/Steam/steamapps/common/Deadlock",
         ]
 
+    # Prefer paths with the actual game executable over leftover empty dirs
+    for c in candidates:
+        if c.exists() and (c / "game" / "bin" / "win64" / "project8.exe").exists():
+            return c
+
     for c in candidates:
         if c.exists() and (c / "game" / "citadel").exists():
             return c
-            
+
     return None
 
 class DeadlockRPC:
