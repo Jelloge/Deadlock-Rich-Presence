@@ -40,7 +40,7 @@ SCRIPT_DIR = BUNDLE_DIR
 def find_deadlock_path(config: dict) -> Path | None:
     if config.get("deadlock_install_path"):
         p = Path(config["deadlock_install_path"])
-        if p.exists():
+        if p.exists() and (p / "game" / "citadel").exists():
             return p
 
     system = platform.system()
@@ -69,8 +69,9 @@ def find_deadlock_path(config: dict) -> Path | None:
         ]
 
     for c in candidates:
-        if c.exists():
+        if c.exists() and (c / "game" / "citadel").exists():
             return c
+            
     return None
 
 class DeadlockRPC:
