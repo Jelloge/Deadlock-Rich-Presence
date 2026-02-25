@@ -7,11 +7,6 @@ Discord Rich Presence for Valve's [Deadlock](https://store.steampowered.com/app/
 
 <img width="250" height="127" alt="deadlock1" src="https://github.com/user-attachments/assets/04db86fa-7a8d-41eb-8311-44d65bd2ca0b" />  <img width="257" height="144" alt="deadlock3" src="https://github.com/user-attachments/assets/5e2fb80c-08b5-4d82-abfb-83d25a6d2c0e" /> <img width="273" height="137" alt="deadlock2" src="https://github.com/user-attachments/assets/02f94a24-3aa7-48a8-a028-7ae4b304f3f4" />
 
-## Requirements
-
-- Discord 
-- Steam + Deadlock installed
-
 ## Installation and Setup
 
 
