@@ -103,13 +103,11 @@ class DiscordRPC:
                 # Use hero-specific hideout flavour text from the API when available
                 # e.g. "Mixing Drinks in the Hideout" for Infernus
                 p["details"] = state.hero_hideout_text
-                hero = state.hero_display_name
-                p["state"] = f"Playing Solo as {hero} (1 of 6)" if hero else "Playing Solo (1 of 6)"
+                p["state"] = "Playing Solo (1 of 6)"
 
             case GamePhase.PARTY_HIDEOUT:
                 p["details"] = state.hero_hideout_text
-                hero = state.hero_display_name
-                p["state"] = f"Party of {state.party_size} · {hero}" if hero else f"Party of {state.party_size}"
+                p["state"] = f"Party of {state.party_size}"
 
             case GamePhase.IN_QUEUE:
                 p["details"] = "Looking for Match..."
