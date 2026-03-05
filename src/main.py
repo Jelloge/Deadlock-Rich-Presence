@@ -10,11 +10,12 @@ import threading
 import time
 from pathlib import Path
 
-from game_state import GameState
+from game_state import GameState, set_hero_store
 from console_log import LogWatcher
 from condebug import launch as launch_deadlock
 from presence import DiscordRPC
 from systray import create_tray_icon
+from hero_data import HeroDataStore
 
 _FROZEN = getattr(sys, "_MEIPASS", None)
 BUNDLE_DIR = Path(_FROZEN) if _FROZEN else Path(__file__).parent
@@ -130,6 +131,13 @@ class DeadlockRPC:
 
         self.state = GameState()
         self.running = False
+
+        # Load hero data from API (or cache) at startup.
+        # This must happen before any hero name / asset lookups.
+        exe_dir = EXE_DIR
+        self._hero_store = HeroDataStore(cache_dir=exe_dir / "cache")
+        self._hero_store.load()
+        set_hero_store(self._hero_store)
 
         self.deadlock_path = find_deadlock_path(self.config)
         if self.deadlock_path:

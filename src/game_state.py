@@ -1,5 +1,6 @@
 """
-Localization file reference: citadel_gc_hero_names_english.txt
+Hero data is loaded dynamically from assets.deadlock-api.com via HeroDataStore.
+See hero_data.py for caching and fallback logic.
 """
 
 from __future__ import annotations
@@ -7,6 +8,19 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from enum import Enum, auto
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from hero_data import HeroDataStore
+
+# Module-level store reference; injected by main.py after initialization.
+_hero_store: "HeroDataStore | None" = None
+
+
+def set_hero_store(store: "HeroDataStore") -> None:
+    """Inject the shared HeroDataStore instance."""
+    global _hero_store
+    _hero_store = store
 
 
 class GamePhase(Enum):
@@ -58,116 +72,8 @@ MODE_DISPLAY: dict[MatchMode, str] = {
     MatchMode.STREET_BRAWL: "Playing Street Brawl (4v4)",
 }
 
-# Console.log examples:
-#"Loaded hero 458/hero_inferno"
-#"Created bot 460/hero_gigawatt/hero_gigawatt"
-HEROES: dict[str, str] = {
-    # playable heroes
-    "abrams": "Abrams",
-    "atlas": "Abrams",
-    "archer": "Grey Talon",
-    "astro": "Holliday",
-    "bebop": "Bebop",
-    "bookworm": "Paige",
-    "bomber": "Bomber",
-    "cadence": "Cadence",
-    "chrono": "Paradox",
-    "doorman": "The Doorman",
-    "drifter": "Drifter",
-    "dynamo": "Dynamo",
-    "familiar": "Rem",
-    "fencer": "Apollo",
-    "forge": "McGinnis",
-    "frank": "Victor",
-    "ghost": "Lady Geist",
-    "gigawatt": "Seven",
-    "gunslinger": "Gunslinger",
-    "haze": "Haze",
-    "hornet": "Vindicta",
-    "inferno": "Infernus",
-    "kali": "Kali",
-    "kelvin": "Kelvin",
-    "digger": "Mo & Krill",
-    "krill": "Mo & Krill",
-    "lash": "Lash",
-    "magician": "Sinclair",
-    "mirage": "Mirage",
-    "nano": "Calico",
-    "necro": "Graves",
-    "operative": "Raven",
-    "orion": "Grey Talon",
-    "phalanx": "Phalanx",
-    "pocket": "Pocket",
-    "priest": "Venator",
-    "punkgoat": "Billy",
-    "rutger": "Rutger",
-    "shiv": "Shiv",
-    "slork": "Fathom",
-    "synth": "Pocket",
-    "tengu": "Ivy",
-    "ivy" : "Ivy",
-    "tokamak": "Tokamak",
-    "trapper": "Trapper",
-    "unicorn": "Celeste",
-    "vampirebat": "Mina",
-    "viper": "Vyper",
-    "viscous": "Viscous",
-    "warden": "Warden",
-    "werewolf": "Silver",
-    "wraith": "Wraith",
-    "yamato": "Yamato",
-
-    # Unreleased / internal
-    "akimbo": "Akimbo",
-    "apocalypse": "Apocalypse",
-    "architect": "Architect",
-    "ballista": "Ballista",
-    "boho": "Boho",
-    "clawdril": "Clawdril",
-    "coldmetal": "Cold Metal",
-    "cowboy": "Cowboy",
-    "demoman": "Demolitions Expert",
-    "druid": "Druid",
-    "duo": "Duo",
-    "fortuna": "Fortuna",
-    "gadgeteer": "Gadgeteer",
-    "gadgetman": "Gadget Man",
-    "genericperson": "Generic Person",
-    "glider": "Glider",
-    "graf": "Graf",
-    "gunner": "Gunner",
-    "hijack": "Hijack",
-    "mechaguy": "Mecha Guy",
-    "opera": "Opera",
-    "phoenix": "Phoenix",
-    "revenant": "Revenant",
-    "sapper": "Sapper",
-    "shieldguy": "Shield Guy",
-    "skymonk": "Sky Monk",
-    "skyrunner": "Skyrunner",
-    "slingshot": "Slingshot",
-    "spade": "Spade",
-    "swan": "Swan",
-    "tempest": "Tempest",
-    "thumper": "Thumper",
-    "vampire": "Vampire",
-    "vandal": "Vandal",
-    "wrecker": "Wrecker",
-    "yakuza": "The Boss",
-    "zealot": "Zealot",
-    "test": "Test Hero",
-    "targetdummy": "TargetDummy",
-}
-
-# Valve renamed some hero folders but Discord assets still use the old codenames.
-# Maps current game codename -> Discord asset key.
-ASSET_OVERRIDES: dict[str, str] = {
-    "abrams": "hero_atlas",
-    "archer": "hero_orion",
-    "digger": "hero_krill",
-    "ivy": "hero_tengu",
-    "pocket": "hero_synth",
-}
+# Hero names and asset keys are now loaded dynamically from the API.
+# See hero_data.py — HeroDataStore provides display_name(), asset_key(), hideout_text().
 
 
 @dataclass
@@ -193,7 +99,10 @@ class GameState:
     def hero_display_name(self) -> str | None:
         if self.hero_key is None:
             return None
-        return HEROES.get(self.hero_key.lower(), self.hero_key.replace("_", " ").title())
+        if _hero_store:
+            return _hero_store.display_name(self.hero_key)
+        # Fallback: title-case the raw key
+        return self.hero_key.replace("_", " ").title()
 
     @property
     def hero_asset_name(self) -> str | None:
@@ -207,7 +116,16 @@ class GameState:
         if key in ("werewolf", "silver") and self.is_transformed:
             return "hero_werewolf_wolf"
 
-        return ASSET_OVERRIDES.get(key, f"hero_{key}")
+        if _hero_store:
+            return _hero_store.asset_key(key)
+        return f"hero_{key}"
+
+    @property
+    def hero_hideout_text(self) -> str:
+        """Hero-specific hideout presence text from the API, e.g. 'Mixing Drinks in the Hideout'."""
+        if self.hero_key and _hero_store:
+            return _hero_store.hideout_text(self.hero_key)
+        return "In the Hideout"
 
     @property
     def in_party(self) -> bool:
@@ -267,13 +185,20 @@ class GameState:
 
         # Strip skin/variant suffixes from VMDL folder names
         # e.g. "mirage_v2" -> "mirage", "gigawatt_prisoner" -> "gigawatt"
-        if normalized not in HEROES:
+        # Try the store first, then brute-force strip suffixes.
+        if _hero_store and not _hero_store.get(normalized):
             parts = normalized.split("_")
             for i in range(len(parts) - 1, 0, -1):
                 candidate = "_".join(parts[:i])
-                if candidate in HEROES:
+                if _hero_store.get(candidate):
                     normalized = candidate
                     break
+        elif not _hero_store:
+            # No store — just strip known numeric/variant suffixes blindly
+            parts = normalized.split("_")
+            for i in range(len(parts) - 1, 0, -1):
+                normalized = "_".join(parts[:i])
+                break
 
         if normalized != self.hero_key:
             self.hero_key = normalized

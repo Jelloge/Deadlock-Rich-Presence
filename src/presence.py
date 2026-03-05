@@ -16,16 +16,22 @@ class DiscordRPC:
         self._last_update_hash = None
 
     def connect(self) -> bool:
-        try:
-            self.rpc = Presence(self.application_id)
-            self.rpc.connect()
-            self._connected = True
-            logger.info("Connected to Discord RPC")
-            return True
-        except Exception as e:
-            logger.error("Failed to connect to Discord: %s", e)
-            self._connected = False
-            return False
+        # Discord allows up to 10 IPC pipe slots (discord-ipc-0 ... discord-ipc-9).
+        # Other presence apps (e.g. music players) may grab slot 0 first.
+        # Iterate until we find a free pipe so we can co-exist with them.
+        for pipe_id in range(10):
+            try:
+                self.rpc = Presence(self.application_id, pipe=pipe_id)
+                self.rpc.connect()
+                self._connected = True
+                logger.info("Connected to Discord RPC on pipe %d", pipe_id)
+                return True
+            except Exception as e:
+                logger.debug("Pipe %d unavailable: %s", pipe_id, e)
+
+        logger.error("Could not connect to Discord on any IPC pipe. Is Discord running?")
+        self._connected = False
+        return False
 
     def disconnect(self) -> None:
         if self.rpc and self._connected:
@@ -73,10 +79,17 @@ class DiscordRPC:
         logo = self.assets.get("logo", "deadlock_logo")
         logo_text = self.assets.get("logo_text", "Deadlock")
 
+        # Default layout:
+        # Large image is the hero (or logo if no hero)
         p: dict = {
             "large_image": state.hero_asset_name or logo,
-            "large_text": state.hero_display_name or logo_text,
+            "large_text": "Deadlock", # Keep main tooltip simple
         }
+        
+        # Add small image for the hero name to appear cleanly as a neat badge hover
+        if state.hero_display_name:
+            p["small_image"] = logo
+            p["small_text"] = state.hero_display_name
         if state.in_party:
             p["party_size"] = [state.party_size, PARTY_MAX]
 
@@ -87,11 +100,13 @@ class DiscordRPC:
                 p["large_text"] = logo_text
 
             case GamePhase.HIDEOUT:
-                p["details"] = "In the Hideout"
-                p["state"] = f"Playing Solo (1 of 6)"
+                # Use hero-specific hideout flavour text from the API when available
+                # e.g. "Mixing Drinks in the Hideout" for Infernus
+                p["details"] = state.hero_hideout_text
+                p["state"] = "Playing Solo (1 of 6)"
 
             case GamePhase.PARTY_HIDEOUT:
-                p["details"] = "In Party Hideout"
+                p["details"] = state.hero_hideout_text
                 p["state"] = f"Party of {state.party_size}"
 
             case GamePhase.IN_QUEUE:
@@ -112,9 +127,6 @@ class DiscordRPC:
                     p["state"] = f"Playing as {hero}"
                 else:
                     p["details"] = f" {mode_str}"
-                if state.hero_key:
-                    p["small_image"] = logo
-                    p["small_text"] = logo_text
 
             case GamePhase.IN_MATCH:
                 mode_str = state.mode_display()
@@ -127,9 +139,6 @@ class DiscordRPC:
                     p["state"] = f"Playing as {hero}"
                 else:
                     p["details"] = f" {mode_str}"
-                if state.hero_key:
-                    p["small_image"] = logo
-                    p["small_text"] = "The Archmother"
                 if state.match_start_time and state.match_mode not in (MatchMode.SANDBOX, MatchMode.TUTORIAL):
                     p["start"] = int(state.match_start_time)
 

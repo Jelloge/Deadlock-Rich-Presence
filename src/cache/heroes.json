@@ -1,0 +1,302 @@
+{
+  "inferno": {
+    "name": "Infernus",
+    "hideout_text": "Mixing Drinks in the Hideout",
+    "asset_key": "hero_inferno"
+  },
+  "gigawatt": {
+    "name": "Seven",
+    "hideout_text": "Plotting in the Hideout",
+    "asset_key": "hero_gigawatt"
+  },
+  "hornet": {
+    "name": "Vindicta",
+    "hideout_text": "Brooding in the Hideout",
+    "asset_key": "hero_hornet"
+  },
+  "ghost": {
+    "name": "Lady Geist",
+    "hideout_text": "Being Fabulous in the Hideout",
+    "asset_key": "hero_ghost"
+  },
+  "atlas": {
+    "name": "Abrams",
+    "hideout_text": "Investigating the Hideout",
+    "asset_key": "hero_atlas"
+  },
+  "wraith": {
+    "name": "Wraith",
+    "hideout_text": "Gambling in the Hideout",
+    "asset_key": "hero_wraith"
+  },
+  "forge": {
+    "name": "McGinnis",
+    "hideout_text": "Tinkering in the Hideout",
+    "asset_key": "hero_forge"
+  },
+  "chrono": {
+    "name": "Paradox",
+    "hideout_text": "Scheming in the Hideout",
+    "asset_key": "hero_chrono"
+  },
+  "dynamo": {
+    "name": "Dynamo",
+    "hideout_text": "Pontificating in the Hideout",
+    "asset_key": "hero_dynamo"
+  },
+  "kelvin": {
+    "name": "Kelvin",
+    "hideout_text": "Chilling in the Hideout",
+    "asset_key": "hero_kelvin"
+  },
+  "haze": {
+    "name": "Haze",
+    "hideout_text": "Sleep Walking in the Hideout",
+    "asset_key": "hero_haze"
+  },
+  "astro": {
+    "name": "Holliday",
+    "hideout_text": "Solving Mysteries in the Hideout",
+    "asset_key": "hero_astro"
+  },
+  "bebop": {
+    "name": "Bebop",
+    "hideout_text": "Ignoring Lash in the Hideout",
+    "asset_key": "hero_bebop"
+  },
+  "nano": {
+    "name": "Calico",
+    "hideout_text": "Playing With Ava in the Hideout",
+    "asset_key": "hero_nano"
+  },
+  "orion": {
+    "name": "Grey Talon",
+    "hideout_text": "Mourning in the Hideout",
+    "asset_key": "hero_orion"
+  },
+  "krill": {
+    "name": "Mo & Krill",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_krill"
+  },
+  "shiv": {
+    "name": "Shiv",
+    "hideout_text": "Playing With Knives in the Hideout",
+    "asset_key": "hero_shiv"
+  },
+  "tengu": {
+    "name": "Ivy",
+    "hideout_text": "Wishing the Arroyos were in the Hideout",
+    "asset_key": "hero_tengu"
+  },
+  "kali": {
+    "name": "Kali",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_kali"
+  },
+  "warden": {
+    "name": "Warden",
+    "hideout_text": "Training in the Hideout",
+    "asset_key": "hero_warden"
+  },
+  "yamato": {
+    "name": "Yamato",
+    "hideout_text": "Reminiscing in the Hideout",
+    "asset_key": "hero_yamato"
+  },
+  "lash": {
+    "name": "Lash",
+    "hideout_text": "Thinking About Lash in the Hideout",
+    "asset_key": "hero_lash"
+  },
+  "viscous": {
+    "name": "Viscous",
+    "hideout_text": "Wishing the Hideout was The Cube",
+    "asset_key": "hero_viscous"
+  },
+  "gunslinger": {
+    "name": "Gunslinger",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_gunslinger"
+  },
+  "yakuza": {
+    "name": "The Boss",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_yakuza"
+  },
+  "tokamak": {
+    "name": "Tokamak",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_tokamak"
+  },
+  "wrecker": {
+    "name": "Wrecker",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_wrecker"
+  },
+  "rutger": {
+    "name": "Rutger",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_rutger"
+  },
+  "synth": {
+    "name": "Pocket",
+    "hideout_text": "Sulking in the Hideout",
+    "asset_key": "hero_synth"
+  },
+  "thumper": {
+    "name": "Thumper",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_thumper"
+  },
+  "mirage": {
+    "name": "Mirage",
+    "hideout_text": "Dreaming of Wyoming in the Hideout",
+    "asset_key": "hero_mirage"
+  },
+  "slork": {
+    "name": "Fathom",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_slork"
+  },
+  "cadence": {
+    "name": "Cadence",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_cadence"
+  },
+  "bomber": {
+    "name": "Bomber",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_bomber"
+  },
+  "shieldguy": {
+    "name": "Shield Guy",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_shieldguy"
+  },
+  "viper": {
+    "name": "Vyper",
+    "hideout_text": "Making Pruno in the Hideout",
+    "asset_key": "hero_viper"
+  },
+  "vandal": {
+    "name": "Vandal",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_vandal"
+  },
+  "magician": {
+    "name": "Sinclair",
+    "hideout_text": "Working Magic in the Hideout",
+    "asset_key": "hero_magician"
+  },
+  "trapper": {
+    "name": "Trapper",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_trapper"
+  },
+  "operative": {
+    "name": "Raven",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_operative"
+  },
+  "vampirebat": {
+    "name": "Mina",
+    "hideout_text": "Grabbing a bite in the Hideout",
+    "asset_key": "hero_vampirebat"
+  },
+  "drifter": {
+    "name": "Drifter",
+    "hideout_text": "Prowling in the Hideout",
+    "asset_key": "hero_drifter"
+  },
+  "priest": {
+    "name": "Venator",
+    "hideout_text": "Blessing Ammunition in the Hideout",
+    "asset_key": "hero_priest"
+  },
+  "frank": {
+    "name": "Victor",
+    "hideout_text": "Brooding in the Hideout",
+    "asset_key": "hero_frank"
+  },
+  "bookworm": {
+    "name": "Paige",
+    "hideout_text": "Reading in the Hideout",
+    "asset_key": "hero_bookworm"
+  },
+  "boho": {
+    "name": "Boho",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_boho"
+  },
+  "doorman": {
+    "name": "The Doorman",
+    "hideout_text": "At Your Service in the Hideout",
+    "asset_key": "hero_doorman"
+  },
+  "skyrunner": {
+    "name": "Skyrunner",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_skyrunner"
+  },
+  "swan": {
+    "name": "Swan",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_swan"
+  },
+  "punkgoat": {
+    "name": "Billy",
+    "hideout_text": "Ranting in the Hideout",
+    "asset_key": "hero_punkgoat"
+  },
+  "druid": {
+    "name": "Druid",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_druid"
+  },
+  "graf": {
+    "name": "Graf",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_graf"
+  },
+  "fortuna": {
+    "name": "Fortuna",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_fortuna"
+  },
+  "necro": {
+    "name": "Graves",
+    "hideout_text": "Playing With The Dead in the Hideout",
+    "asset_key": "hero_necro"
+  },
+  "fencer": {
+    "name": "Apollo",
+    "hideout_text": "Striving Towards Perfection in the Hideout",
+    "asset_key": "hero_fencer"
+  },
+  "airheart": {
+    "name": "Airheart",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_airheart"
+  },
+  "familiar": {
+    "name": "Rem",
+    "hideout_text": "Having Sweet Dreams in the Hideout",
+    "asset_key": "hero_familiar"
+  },
+  "werewolf": {
+    "name": "Silver",
+    "hideout_text": "Figuring Out What Happened Last Night in the Hideout",
+    "asset_key": "hero_werewolf"
+  },
+  "unicorn": {
+    "name": "Celeste",
+    "hideout_text": "Cleaning Up Glitter in the Hideout",
+    "asset_key": "hero_unicorn"
+  },
+  "opera": {
+    "name": "Opera",
+    "hideout_text": "In the Hideout",
+    "asset_key": "hero_opera"
+  }
+}

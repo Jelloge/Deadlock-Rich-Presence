@@ -49,9 +49,16 @@ DeadlockRP monitors Deadlock's `console.log` file (written when the game runs wi
 
 The game's runtime and memory are never touched. So it's VAC-safe and won't affect performance.
 
+## Changelog & Recent Fixes
+- **Dynamic Hero Data**: Integrates with `deadlock-api.com`! Hero names are now fetched automatically so new heroes work instantly without manual code updates.
+- **Unique Hideout Text**: When in the hideout, your presence now displays hero-specific flavour text (e.g., *"Mixing Drinks in the Hideout"* for Infernus) instead of a generic string.
+- **Fixed IPC Port Conflicts**: The app now intelligently cycles through IPC pipes (`discord-ipc-0` to `-9`), fixing the bug where the presence would freeze or fail to display if you were running Spotify/Music presence at the same time.
+- **Fixed Queue Bug**: Addressed the issue where *"Looking for Match..."* wouldn't display when queuing in a party.
+
 ## TO-DO
 
 - Dynamic portrait changes, for critical and gloating portraits. Recently implemented switches that will display Silver's wolf and human form, so I know that it's do-able
+- Upload new unreleased hero assets to the Discord app (names work via API, but images still require manual Dev Portal uploads).
 - Localization
 - Clean up code
 - Cross-platform stuff
@@ -59,6 +66,4 @@ The game's runtime and memory are never touched. So it's VAC-safe and won't affe
 ## Known Bugs
 
 Please share any issues!
-
-- 'Looking for Match...' not being displayed for players in a party.
 
