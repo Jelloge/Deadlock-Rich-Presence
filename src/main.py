@@ -41,10 +41,40 @@ SCRIPT_DIR = BUNDLE_DIR
 DEADLOCK_APP_ID = "1422450"
 
 
+def _steam_install_path_from_registry() -> Path | None:
+    """Read Steam's install path from the Windows Registry."""
+    if platform.system() != "Windows":
+        return None
+    try:
+        import winreg
+        for hive, subkey in [
+            (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Valve\Steam"),
+            (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Valve\Steam"),
+            (winreg.HKEY_CURRENT_USER, r"Software\Valve\Steam"),
+        ]:
+            try:
+                with winreg.OpenKey(hive, subkey) as key:
+                    val, _ = winreg.QueryValueEx(key, "InstallPath")
+                    p = Path(val)
+                    if p.exists():
+                        return p
+            except OSError:
+                continue
+    except Exception:
+        pass
+    return None
+
+
 def _steam_library_folders() -> list[Path]:
     """Return all Steam library folder paths from libraryfolders.vdf."""
+    vdf_locations: list[Path] = []
+
     if platform.system() == "Windows":
-        vdf_locations = [
+        # Check the registry first, handles any custom Steam install location
+        reg_path = _steam_install_path_from_registry()
+        if reg_path:
+            vdf_locations.append(reg_path / "steamapps" / "libraryfolders.vdf")
+        vdf_locations += [
             Path(r"C:\Program Files (x86)\Steam\steamapps\libraryfolders.vdf"),
             Path(r"C:\Program Files\Steam\steamapps\libraryfolders.vdf"),
         ]
@@ -89,7 +119,7 @@ def find_deadlock_path(config: dict) -> Path | None:
             except Exception:
                 pass
 
-    # 3. Hardcoded fallbacks for when VDF/manifest detection fails
+    # 3. hardcoded fallbacks for when VDF/manifest detection fails
     system = platform.system()
     candidates: list[Path] = []
 
@@ -99,6 +129,9 @@ def find_deadlock_path(config: dict) -> Path | None:
             Path(r"C:\Program Files\Steam\steamapps\common\Deadlock"),
             Path(r"D:\SteamLibrary\steamapps\common\Deadlock"),
             Path(r"E:\SteamLibrary\steamapps\common\Deadlock"),
+            Path(r"C:\Steam\steamapps\common\Deadlock"),
+            Path(r"D:\Steam\steamapps\common\Deadlock"),
+            Path(r"E:\Steam\steamapps\common\Deadlock"),
         ]
     elif system == "Linux":
         home = Path.home()
@@ -107,7 +140,7 @@ def find_deadlock_path(config: dict) -> Path | None:
             home / ".local/share/Steam/steamapps/common/Deadlock",
         ]
 
-    # Prefer paths with the actual game executable over leftover empty dirs.
+    # Prefer paths with the actual game executable over leftover empty dirs
     # Proton installs the Windows binaries on Linux too, so win64/project8.exe
     # works as a quality check on both platforms.
     exe_candidates = [
@@ -255,7 +288,7 @@ def main():
     # start the RPC
     app.start()
 
-    #Create system tray icon, systray or console
+    #create system tray icon, systray or console
     tray_icon = create_tray_icon(app)
 
     if tray_icon:
