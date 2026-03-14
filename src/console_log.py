@@ -267,8 +267,13 @@ class LogWatcher:
         self._hero_window_open = False
 
     def _prepare_match_hero_tracking(self) -> None:
-        # Preserve the hero we already know when entering a real match.
-        self._hero_window_open = self.state.hero_key is None
+        # clear the hideout hero and reopen the hero window so the first
+        # in-match hero signal is accepted.  The hideout hero is not
+        # necessarily the match hero bc hero selection can change it in
+        # standard 6v6, and Street Brawl assigns randomly.
+        self.state.hero_key = None
+        self.state.is_transformed = False
+        self._hero_window_open = True
 
     def _apply_hero_signal(self, hero_key: str) -> None:
         hero_norm = hero_key.lower().replace("hero_", "")
@@ -277,16 +282,20 @@ class LogWatcher:
             return
 
         if self.state.phase in (GamePhase.MATCH_INTRO, GamePhase.IN_MATCH):
-            if self.state.hero_key is not None and hero_norm != self.state.hero_key:
-                return
-            if self.state.hero_key is None and not self._hero_window_open:
-                return
+            # Sandbox allows free hero swapping like the hideout, so skip
+            # the lock-in checks and never close the hero window.
+            if self.state.match_mode != MatchMode.SANDBOX:
+                if self.state.hero_key is not None and hero_norm != self.state.hero_key:
+                    return
+                if self.state.hero_key is None and not self._hero_window_open:
+                    return
         elif self.state.phase in (GamePhase.MAIN_MENU, GamePhase.POST_MATCH):
             return
 
         self.state.set_hero(hero_norm)
         if self.state.phase in (GamePhase.MATCH_INTRO, GamePhase.IN_MATCH):
-            self._close_hero_window()
+            if self.state.match_mode != MatchMode.SANDBOX:
+                self._close_hero_window()
 
     def _set_party_size_from_members(self, minimum_size: int = 1) -> None:
         members = set(self._party_members)
@@ -332,15 +341,19 @@ class LogWatcher:
         current_map = (self.state.map_name or "").lower()
         in_hideout_map = current_map in self.hideout_maps
 
-        # Map signals
-        if m := self._match("local_account_id", line):
-            if self._local_account_id is None:
+        # capture local account ID from any line containing a Steam ID.
+        # this is a standalone check (not part of the elif chain) because
+        # [U:1:XXXXX] appears in many log lines that also carry other
+        # patterns (server_connect, player_info, etc.)
+        if self._local_account_id is None:
+            if m := self._match("local_account_id", line):
                 self._local_account_id = int(m.group(1))
                 if self._party_id is not None:
                     self._party_members.add(self._local_account_id)
                     self._set_party_size_from_members(minimum_size=2)
 
-        elif m := self._match("party_event", line):
+        # Map signals
+        if m := self._match("party_event", line):
             self._apply_party_event(
                 party_id=int(m.group(1)),
                 event_name=m.group(2),
@@ -413,7 +426,6 @@ class LogWatcher:
                 self._apply_hero_signal(m.group(1))
 
         # Hero loading via VMDL (remote matches only, not hideout)
-        # In hideout, VMDL fires for OTHER players' heroes, not ours
         # Also handles Silver's wolf form swap
         elif m := self._match("client_hero_vmdl", line):
             hero_norm = m.group(1).lower()
@@ -469,13 +481,16 @@ class LogWatcher:
             if self.state.phase in (GamePhase.HIDEOUT, GamePhase.PARTY_HIDEOUT):
                 self.state.phase = GamePhase.PARTY_HIDEOUT if self.state.in_party else GamePhase.HIDEOUT
 
-        # Bot mode
+        # Bot mode — only classify as BOT_MATCH if we haven't already
+        # identified the mode from player count (standard/street brawl
+        # matches also have bots for lane creeps, jungle camps, etc.)
         elif m := self._match("bot_init", line):
             if self.state.phase != GamePhase.SPECTATING and not in_hideout_map:
                 difficulty = m.group(1).replace("k_ECitadelBotDifficulty_", "")
                 self._bot_init_count += 1
                 self.state.bot_difficulty = difficulty
-                self.state.match_mode = MatchMode.BOT_MATCH
+                if self.state.match_mode == MatchMode.UNKNOWN:
+                    self.state.match_mode = MatchMode.BOT_MATCH
 
         # Host activate (map fully loaded)
         elif m := self._match("host_activate", line):

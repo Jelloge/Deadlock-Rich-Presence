@@ -12,7 +12,7 @@ Discord Rich Presence for Valve's [Deadlock](https://store.steampowered.com/app/
 
 Download **DeadlockRPC.exe** from the [latest release](https://github.com/Jelloge/DeadlockRPC/releases/latest) and run it! 
 
-It will show up in your taskbar. Make sure you launch the game USING this app, as it will automatically launch your game with '-condebug' via Steam so console logging is always enabled.
+It will show up in your taskbar. Make sure you launch the game USING this app, as it will automatically launch your game with '-condebug' via Steam so console logging is always enabled. '-condebug' is integral for this app to work.
 
 If you need help, message me on Discord: boba
 
@@ -54,6 +54,9 @@ The game's runtime and memory are never touched. So it's VAC-safe and won't affe
 - **Unique Hideout Text**: When in the hideout, your presence now displays hero-specific flavour text (e.g., *"Mixing Drinks in the Hideout"* for Infernus) instead of a generic string.
 - **Fixed IPC Port Conflicts**: The app now intelligently cycles through IPC pipes (`discord-ipc-0` to `-9`), fixing the bug where the presence would freeze or fail to display if you were running Spotify/Music presence at the same time.
 - **Fixed Queue Bug**: Addressed the issue where *"Looking for Match..."* wouldn't display when queuing in a party.
+- **Fixed Hero Detection**: Addressed issue where hero wouldn't update when entering a match.
+- **Fixed Match Detection**: Fixed matches being misclassified as a bot match.
+- **Fixed Party Tracking**
 
 ## TO-DO
 
