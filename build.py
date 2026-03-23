@@ -18,8 +18,7 @@ def main():
         "src/main.py",
     ]
 
-    # --noconsole hides the terminal window on Windows; on Linux it has no effect
-    # but including it would suppress stdout, so skip it there.
+    # --noconsole hides the terminal on Windows only (suppresses stdout on Linux)
     if is_windows:
         cmd += ["--noconsole", "--icon=src/favicon.ico"]
 
@@ -27,7 +26,7 @@ def main():
     subprocess.run(cmd, check=True)
 
     artifact = f"dist/{output_name}.exe" if is_windows else f"dist/{output_name}"
-    print(f"\nDone! → {artifact}")
+    print(f"\nDone! -> {artifact}")
 
 if __name__ == "__main__":
     main()
