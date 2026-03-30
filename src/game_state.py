@@ -61,7 +61,7 @@ class MatchMode(Enum):
 
 MODE_DISPLAY: dict[MatchMode, str] = {
     MatchMode.UNKNOWN: "Playing a Match",
-    MatchMode.UNRANKED: "Playing Standard (6v6)",
+    MatchMode.UNRANKED: "In a Match",
     MatchMode.RANKED: "Playing Ranked (6v6)",
     MatchMode.HERO_LABS: "Playing Hero Labs",
     MatchMode.PRIVATE_LOBBY: "Playing Private Lobby",
@@ -69,7 +69,7 @@ MODE_DISPLAY: dict[MatchMode, str] = {
     MatchMode.TUTORIAL: "Tutorial",
     MatchMode.SANDBOX: "Training in Sandbox Mode",
     MatchMode.CALIBRATION: "Placement Match",
-    MatchMode.STREET_BRAWL: "Playing Street Brawl (4v4)",
+    MatchMode.STREET_BRAWL: "In a Match",
 }
 
 # Hero names and asset keys are now loaded dynamically from the API.
